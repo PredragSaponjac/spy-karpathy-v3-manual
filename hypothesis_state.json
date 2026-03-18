@@ -1,0 +1,19 @@
+{
+  "rule_families": {
+    "level": true,
+    "interaction": true,
+    "divergence": true,
+    "sequence": true,
+    "skip": true
+  },
+  "feature_family_weights": {},
+  "divergence_family_weights": {},
+  "sequence_family_weights": {},
+  "thresholds": {
+    "min_support": 30,
+    "neighbor_band_pct": 0.1
+  },
+  "skip_aggressiveness": 1.0,
+  "intermarket_weight": 1.0,
+  "move_size_preference": 1.0
+}

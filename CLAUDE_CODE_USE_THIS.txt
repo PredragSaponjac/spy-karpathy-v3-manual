@@ -1,0 +1,20 @@
+Use `program.md` in this repo as the controlling design document.
+
+Important constraints:
+1. Treat the current deterministic v2 modules as the fixed truth engine.
+2. Do NOT rewrite evaluator.py, live_rulebook.py, DB schema, collector, or backfill logic.
+3. Add a bounded Karpathy shell around the repo, not a free-form self-editing agent.
+4. Only allow automatic mutation of bounded hypothesis/config files.
+5. Keep QQQ as a first-class intermarket helper for SPY.
+6. Output must stay understandable for me trading 1 /MES contract.
+7. Respect the existing maturity gates.
+
+Deliverables:
+- program.md-driven bounded Karpathy shell
+- karpathy_runner.py
+- karpathy_judge.py
+- prompts/proposer.txt
+- prompts/critic.txt
+- hypothesis/search/ranking config files
+- experiment memory log
+- short README section on how to run the champion vs challenger loop
