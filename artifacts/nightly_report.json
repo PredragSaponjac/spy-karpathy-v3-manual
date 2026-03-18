@@ -1,0 +1,20 @@
+{
+  "generated": "2026-03-18 15:53",
+  "instrument": "/MES x1",
+  "data": {
+    "snapshots": 6739,
+    "days": 1,
+    "features": 736,
+    "candidates": 0,
+    "promoted": 0,
+    "preliminary": true
+  },
+  "assumptions": {
+    "mes_reference_price": 6614.8,
+    "mes_reference_source": "live SPY spot 661.48 x10",
+    "point_value": 5.0,
+    "round_trip_cost": 2.5,
+    "slippage_usd": 2.5
+  },
+  "rules": []
+}
