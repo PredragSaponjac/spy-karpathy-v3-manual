@@ -217,7 +217,7 @@ def build_features(df: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
 
     # Key columns for z-score normalization
     key_zscore = [
-        'gex_total', 'dex', 'vex', 'cex', 'nope', 'net_prem', 'net_delta_flow',
+        'gex_total', 'gex_to_volume', 'dex', 'vex', 'cex', 'nope', 'net_prem', 'net_delta_flow',
         'atm_avg_iv', 'skew_25d', 'iv_slope', 'iv_curvature',
         'pin_score', 'theta_per_min', 'atm_straddle',
         'efficiency_ratio', 'structural_gate', 'persistence',

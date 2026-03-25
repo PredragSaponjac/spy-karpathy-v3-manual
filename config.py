@@ -91,7 +91,7 @@ FAMILY_SPY_TAPE = [
 FAMILY_SPY_DEALER = [
     'gex_total', 'dex', 'vex', 'cex', 'gamma_flip', 'gamma_flip_dist_pct',
     'gex_concentration', 'gex_above_spot', 'gex_below_spot', 'gex_asym_ratio',
-    'gex_support_score', 'gex_imbalance', 'gex_normalized',
+    'gex_support_score', 'gex_imbalance', 'gex_normalized', 'gex_to_volume',
     'dealer_gamma_regime', 'dealer_pressure', 'gamma_magnification',
 ]
 FAMILY_SPY_FLOW = [
@@ -176,7 +176,7 @@ ALL_SPY_FAMILIES = {
 # ─── Pattern Search ─────────────────────────────────────────────────────
 MAX_PREDICATES_DEFAULT = 3       # max conjuncts per rule
 MAX_PREDICATES_ELITE   = 4       # only for top survivors
-MIN_SUPPORT            = 30      # min snapshots matching a rule
+MIN_SUPPORT            = 20      # min snapshots matching a rule (lowered from 30 for early-data maturity)
 MIN_DISTINCT_DAYS      = 2       # min trading days (relaxed for early data)
 QUANTILE_BINS          = 5       # quintile binning for level rules
 NEIGHBOR_BAND_PCT      = 0.10    # ±10% for threshold robustness check
@@ -203,13 +203,21 @@ MATURITY_TIERS = {
         'min_wf_folds': 1,
         'label': 'RESEARCH — watchlist candidates only',
     },
-    (5, 9):   {  # 5-9 days → PRELIMINARY, cautious promotion
+    (5, 6):   {  # 5-6 days → PRELIMINARY, single fold OK
+        'mode': 'preliminary',
+        'max_promoted': 14,
+        'max_entry_rules': 6,
+        'max_skip_rules': 8,
+        'min_wf_folds': 1,
+        'label': 'PRELIMINARY — not yet live-trading ready',
+    },
+    (7, 9):   {  # 7-9 days → PRELIMINARY+, 2-fold validation
         'mode': 'preliminary',
         'max_promoted': 14,
         'max_entry_rules': 6,
         'max_skip_rules': 8,
         'min_wf_folds': 2,
-        'label': 'PRELIMINARY — not yet live-trading ready',
+        'label': 'PRELIMINARY — 2-fold walk-forward validated',
     },
     (10, 999): { # 10+ days → LIVE, full walk-forward promotion
         'mode': 'live',
@@ -301,13 +309,13 @@ MOVE_SIZE_PREFERENCE = 1.0       # multiplier on MFE component in entry composit
 
 # ─── LLM Budget Guard ──────────────────────────────────────────────────
 # Controls proposer/critic spend only. Does NOT affect the deterministic engine.
-LLM_INPUT_PRICE_PER_MTOK          = 3.0      # $/1M input tokens  (claude-sonnet-4-6)
-LLM_OUTPUT_PRICE_PER_MTOK         = 15.0     # $/1M output tokens (claude-sonnet-4-6)
+LLM_INPUT_PRICE_PER_MTOK          = 15.0     # $/1M input tokens  (claude-opus-4-6)
+LLM_OUTPUT_PRICE_PER_MTOK         = 75.0     # $/1M output tokens (claude-opus-4-6)
 LLM_HARD_BUDGET_USD               = 30.0     # abort LLM loop immediately
 LLM_SOFT_BUDGET_USD               = 24.0     # stop launching new challengers
 LLM_MAX_CHALLENGERS               = 5        # max challenger attempts per run
 LLM_MAX_OUTPUT_TOKENS_PER_CALL    = 4000     # max_tokens sent to API
-LLM_DEFAULT_MODEL                 = "claude-sonnet-4-6"
+LLM_DEFAULT_MODEL                 = "claude-opus-4-6"
 LLM_PROJECTED_PROPOSER_INPUT_TOKENS  = 6000  # typical proposer context size
 LLM_PROJECTED_PROPOSER_OUTPUT_TOKENS = 1500  # typical proposer response
 LLM_PROJECTED_CRITIC_INPUT_TOKENS    = 8000  # critic sees diagnostics + patch
