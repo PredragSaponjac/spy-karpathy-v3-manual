@@ -172,28 +172,74 @@ def judge(champion_metrics: dict, challenger_metrics: dict,
     all_pass = all(v for k, v in checks.items() if k.endswith("_pass"))
     has_improvement = checks["composite_pass"]
 
+    # ── LATERAL_PROMOTE: near-flat performance but structural improvement
+    # Condition: composite improvement below threshold BUT meaningful simplification
+    rule_count_dropped = (champion_metrics["total_rules"]
+                          - challenger_metrics["total_rules"])
+    day_conc_improved = (champion_metrics["worst_day_concentration"]
+                         - challenger_metrics["worst_day_concentration"])
+
+    # For lateral: all guards pass EXCEPT composite improvement
+    guards_pass = all(v for k, v in checks.items()
+                      if k.endswith("_pass") and k != "composite_pass")
+
+    is_lateral = (
+        guards_pass
+        and not has_improvement
+        and improvement_pct >= -0.02   # not getting worse by more than 2%
+        and (rule_count_dropped >= 2 or day_conc_improved >= 0.05)
+    )
+
+    checks["lateral_rule_count_drop"] = rule_count_dropped
+    checks["lateral_day_conc_improvement"] = round(day_conc_improved, 4)
+    checks["lateral_eligible"] = is_lateral
+
+    # Check if non-composite guards all pass
+    failed_guards = [k.replace("_pass", "") for k, v in checks.items()
+                     if k.endswith("_pass") and not v and k != "composite_pass"]
+
     if all_pass and has_improvement:
         decision["accepted"] = True
+        decision["verdict"] = "PROMOTE"
         decision["reason"] = (
             f"Challenger improves composite by {improvement_pct*100:.1f}% "
             f"with net expectancy delta ${exp_delta:+.2f}, "
             f"stability delta {stability_delta:+.4f}. "
             f"All guardrails passed."
         )
-    elif all_pass and not has_improvement:
+    elif is_lateral:
+        decision["accepted"] = True
+        decision["verdict"] = "LATERAL_PROMOTE"
+        lateral_reasons = []
+        if rule_count_dropped >= 2:
+            lateral_reasons.append(f"rule count -{rule_count_dropped}")
+        if day_conc_improved >= 0.05:
+            lateral_reasons.append(f"day concentration improved {day_conc_improved*100:.1f}pp")
+        decision["reason"] = (
+            f"LATERAL_PROMOTE: composite delta {improvement_pct*100:+.1f}% "
+            f"(below {MIN_COMPOSITE_IMPROVEMENT_PCT*100:.0f}% threshold) "
+            f"but structural improvement: {', '.join(lateral_reasons)}. "
+            f"All guardrails passed."
+        )
+    elif not failed_guards and not has_improvement:
+        # All non-composite guards pass, but composite didn't improve enough
+        # and no structural simplification qualifies for lateral
         decision["accepted"] = False
+        decision["verdict"] = "TIE_REJECT"
         decision["reason"] = (
             f"All guardrails pass but composite improvement "
             f"({improvement_pct*100:.1f}%) below minimum threshold "
             f"({MIN_COMPOSITE_IMPROVEMENT_PCT*100:.0f}%). "
+            f"No structural simplification qualifies for LATERAL_PROMOTE. "
             f"Champion retained."
         )
     else:
-        failed = [k.replace("_pass", "") for k, v in checks.items()
-                  if k.endswith("_pass") and not v]
         decision["accepted"] = False
+        decision["verdict"] = "REJECT"
+        all_failed = [k.replace("_pass", "") for k, v in checks.items()
+                      if k.endswith("_pass") and not v]
         decision["reason"] = (
-            f"Challenger failed guardrails: {', '.join(failed)}. "
+            f"Challenger failed guardrails: {', '.join(all_failed)}. "
             f"Champion retained."
         )
 
@@ -204,16 +250,18 @@ def judge(champion_metrics: dict, challenger_metrics: dict,
 
 def judge_first_run(challenger_metrics: dict) -> dict:
     """When there's no champion yet, accept any valid challenger."""
+    has_rules = challenger_metrics["total_rules"] > 0
     decision = {
         "timestamp": datetime.now().isoformat(),
         "patch_summary": "first_run",
         "champion": None,
         "challenger": challenger_metrics,
         "checks": {},
-        "accepted": challenger_metrics["total_rules"] > 0,
+        "accepted": has_rules,
+        "verdict": "PROMOTE" if has_rules else "REJECT",
         "reason": (
             "First run accepted as champion baseline."
-            if challenger_metrics["total_rules"] > 0
+            if has_rules
             else "First run produced no rules. No champion set."
         ),
     }

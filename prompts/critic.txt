@@ -43,6 +43,8 @@ THINGS YOU MUST EXPLICITLY CHECK
 
 5) COMPLEXITY CREEP
 - Will this likely increase rule count, overlap, or fragile composites?
+- If enabling confluence: are there actually 2+ strong cross-family rules worth combining, or is this premature?
+- Confluence should only be enabled when the base rulebook has diverse families — not when all rules share the same base condition.
 
 6) SKIP DISCIPLINE
 - Does this patch risk weakening skip quality just to surface more trades?
@@ -52,6 +54,12 @@ THINGS YOU MUST EXPLICITLY CHECK
 
 8) BOUNDEDNESS
 - Is the patch small and testable tonight, or is it secretly multiple changes?
+
+8) CONFLUENCE DISCIPLINE
+- If the patch enables confluence, check:
+  - Are there ≥2 strong promoted rules from different families?
+  - Would combining them plausibly create a better signal, or just increase complexity?
+  - Is the data maturity sufficient for confluence (generally want ≥7 days)?
 
 RED FLAGS
 Be especially skeptical if the patch:

@@ -169,6 +169,54 @@ def run_nightly(db_path: Path = DB_PATH, dry_run: bool = False,
         verbose=verbose,
     )
 
+    # ── Step 5b: Confluence pass (if enabled and mature enough) ──────
+    confluence_enabled = getattr(_cfg, 'RULE_FAMILIES_ENABLED', {}).get('confluence', False)
+    confluence_mature = tier_mode not in ('features_only', 'research')  # need ≥5 days
+
+    if confluence_enabled and confluence_mature:
+        print("\n[5b/6] Running confluence pass...")
+        from rule_compiler import generate_confluence_rules, prune_confluence_by_overlap
+        from evaluator import evaluate_rule, check_neighbor_robustness
+
+        base_entry = [s for s in promoted if s.rule.direction != 'SKIP']
+        if len(base_entry) >= 2:
+            base_dicts = [s.to_dict() for s in promoted]
+            confluence_candidates = generate_confluence_rules(base_dicts)
+            print(f"  Confluence candidates: {len(confluence_candidates)}")
+
+            if confluence_candidates:
+                min_sup = _cfg.MIN_SUPPORT
+                confluence_scored = []
+                for rule in confluence_candidates:
+                    mask = rule.evaluate(df_labeled)
+                    support = mask.sum()
+                    if support < min_sup:
+                        continue
+                    score = evaluate_rule(rule, df_labeled)
+                    if score.composite_score > 0:
+                        if check_neighbor_robustness(score.rule, df_labeled):
+                            score.neighbor_robust = True
+                            confluence_scored.append(score)
+
+                print(f"  Confluence passed eval: {len(confluence_scored)}")
+
+                if confluence_scored:
+                    surviving = prune_confluence_by_overlap(
+                        confluence_scored, base_entry, df_labeled)
+                    for s in surviving:
+                        print(f"  CONFLUENCE PROMOTED: {s.rule.name} "
+                              f"(composite={s.composite_score:.2f}, "
+                              f"WR={s.win_rate:.1%}, "
+                              f"${s.mes_net_expectancy:.2f}/MES)")
+                    promoted = list(promoted) + surviving
+        else:
+            print("  Need ≥2 non-SKIP promoted rules for confluence — skipping")
+    elif confluence_enabled and not confluence_mature:
+        if verbose:
+            print(f"\n[5b/6] Confluence: enabled but maturity too low ({tier_mode}) — skipping")
+    elif verbose:
+        print("\n[5b/6] Confluence: disabled")
+
     # ── Step 6: Write artifacts ──────────────────────────────────────────
     print("\n[6/6] Writing artifacts...")
 

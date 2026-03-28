@@ -134,6 +134,10 @@ def package_diagnostics(
         package["top_entry_rules"] = []
         package["top_skip_rules"] = []
 
+    # ── Feature attribution telemetry ────────────────────────────────
+    if accepted_rules:
+        package["feature_attribution"] = _build_feature_attribution(accepted_rules)
+
     # ── Current hypothesis ────────────────────────────────────────────
     package["current_hypothesis"] = {
         "rule_families": hypothesis.get("rule_families", {}),
@@ -153,6 +157,99 @@ def package_diagnostics(
     package["recent_experiments"] = _get_rolling_memory()
 
     return package
+
+
+def _build_feature_attribution(accepted_rules: list) -> dict:
+    """Build feature-level attribution from promoted rules.
+
+    Returns:
+        - top_by_support: features appearing in most rules
+        - top_by_lift: features in rules with highest net expectancy
+        - worst_drag: families that generated rules but with low/negative expectancy
+        - family_contribution: per-family summary
+    """
+    from collections import defaultdict
+
+    feature_stats = defaultdict(lambda: {
+        "appearances": 0, "families": set(),
+        "total_net_exp": 0.0, "entry_appearances": 0,
+    })
+
+    family_stats = defaultdict(lambda: {
+        "rule_count": 0, "total_composite": 0.0,
+        "total_net_exp": 0.0, "directions": defaultdict(int),
+    })
+
+    for rule in accepted_rules:
+        fam = rule.get("source_family", "unknown")
+        direction = rule.get("direction", "?")
+        net_exp = rule.get("mes_net_expectancy_usd", 0)
+        composite = rule.get("composite_score", 0)
+
+        family_stats[fam]["rule_count"] += 1
+        family_stats[fam]["total_composite"] += composite
+        family_stats[fam]["total_net_exp"] += net_exp
+        family_stats[fam]["directions"][direction] += 1
+
+        for pred in rule.get("predicates", []):
+            feat = pred.get("feature", "")
+            if not feat:
+                continue
+            feature_stats[feat]["appearances"] += 1
+            feature_stats[feat]["families"].add(fam)
+            # Only count entry rules for lift (SKIP net_exp has different semantics)
+            if direction != "SKIP":
+                feature_stats[feat]["total_net_exp"] += net_exp
+                feature_stats[feat]["entry_appearances"] += 1
+
+    # Top by support (most appearances)
+    top_by_support = sorted(
+        [{"feature": f, "appearances": s["appearances"],
+          "families": sorted(s["families"])}
+         for f, s in feature_stats.items()],
+        key=lambda x: -x["appearances"]
+    )[:8]
+
+    # Top by lift (highest average net expectancy — entry rules only)
+    top_by_lift = sorted(
+        [{"feature": f,
+          "avg_net_exp": round(s["total_net_exp"] / s["entry_appearances"], 2),
+          "entry_rules_using": s["entry_appearances"]}
+         for f, s in feature_stats.items()
+         if s["entry_appearances"] > 0],
+        key=lambda x: -x["avg_net_exp"]
+    )[:8]
+
+    # Worst drag families (low avg composite or negative expectancy)
+    worst_drag = sorted(
+        [{"family": fam,
+          "rule_count": s["rule_count"],
+          "avg_composite": round(s["total_composite"] / s["rule_count"], 2)
+          if s["rule_count"] > 0 else 0,
+          "avg_net_exp": round(s["total_net_exp"] / s["rule_count"], 2)
+          if s["rule_count"] > 0 else 0}
+         for fam, s in family_stats.items()],
+        key=lambda x: x["avg_net_exp"]
+    )[:5]
+
+    # Family contribution summary
+    family_contribution = {
+        fam: {
+            "rule_count": s["rule_count"],
+            "avg_composite": round(s["total_composite"] / s["rule_count"], 2)
+            if s["rule_count"] > 0 else 0,
+            "total_net_exp": round(s["total_net_exp"], 2),
+            "directions": dict(s["directions"]),
+        }
+        for fam, s in family_stats.items()
+    }
+
+    return {
+        "top_by_support": top_by_support,
+        "top_by_lift": top_by_lift,
+        "worst_drag": worst_drag,
+        "family_contribution": family_contribution,
+    }
 
 
 def _get_rolling_memory(last_n: int = 10) -> dict:

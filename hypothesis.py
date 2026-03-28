@@ -21,6 +21,7 @@ DEFAULT_HYPOTHESIS = {
         "divergence":  True,
         "sequence":    True,
         "skip":        True,
+        "confluence":  False,  # disabled by default — Karpathy can toggle
     },
 
     # Feature-family emphasis for interaction rule generation
@@ -61,7 +62,7 @@ DEFAULT_HYPOTHESIS = {
 
     # Thresholds (override config.py defaults)
     "thresholds": {
-        "min_support":       30,
+        "min_support":       20,
         "max_overlap":       0.60,
         "neighbor_band_pct": 0.10,
         "min_composite_score": 0.0,
@@ -80,23 +81,41 @@ DEFAULT_HYPOTHESIS = {
 
 
 def load_hypothesis() -> dict:
-    """Load the current champion hypothesis from disk, or return defaults."""
-    if _HYPOTHESIS_PATH.exists():
-        try:
-            with open(_HYPOTHESIS_PATH, 'r') as f:
-                saved = json.load(f)
-            # Merge with defaults to ensure all keys exist
-            merged = _deep_merge(DEFAULT_HYPOTHESIS, saved)
-            return merged
-        except (json.JSONDecodeError, KeyError):
+    """Load the current champion hypothesis from disk, or return defaults.
+
+    Uses safe_load with schema validation and corruption fallback.
+    """
+    try:
+        from state_io import safe_load
+        saved = safe_load(_HYPOTHESIS_PATH)
+    except ImportError:
+        # Fallback if state_io not available
+        if _HYPOTHESIS_PATH.exists():
+            try:
+                with open(_HYPOTHESIS_PATH, 'r') as f:
+                    saved = json.load(f)
+            except (json.JSONDecodeError, KeyError):
+                return DEFAULT_HYPOTHESIS.copy()
+        else:
             return DEFAULT_HYPOTHESIS.copy()
-    return DEFAULT_HYPOTHESIS.copy()
+
+    # Merge with defaults to ensure all keys exist (handles new keys like confluence)
+    merged = _deep_merge(DEFAULT_HYPOTHESIS, saved)
+    return merged
 
 
 def save_hypothesis(hypothesis: dict):
-    """Save hypothesis to disk (called when a challenger wins)."""
-    with open(_HYPOTHESIS_PATH, 'w') as f:
-        json.dump(hypothesis, f, indent=2)
+    """Save hypothesis to disk (called when a challenger wins).
+
+    Uses safe_save with atomic write, backup, and validation.
+    """
+    try:
+        from state_io import safe_save
+        safe_save(hypothesis, _HYPOTHESIS_PATH)
+    except ImportError:
+        # Fallback if state_io not available
+        with open(_HYPOTHESIS_PATH, 'w') as f:
+            json.dump(hypothesis, f, indent=2)
 
 
 def apply_patch(hypothesis: dict, patch: dict) -> dict:

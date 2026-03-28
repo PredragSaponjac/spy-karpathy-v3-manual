@@ -35,6 +35,8 @@ from pathlib import Path
 # Ensure sibling imports work
 sys.path.insert(0, str(Path(__file__).parent))
 
+import hashlib
+
 from config import DB_PATH, ARTIFACTS_DIR, MIN_SUPPORT, get_maturity_tier
 import config as config_module
 from hypothesis import load_hypothesis, save_hypothesis, apply_patch
@@ -44,6 +46,7 @@ from karpathy_judge import extract_metrics, judge, judge_first_run
 from nightly_train import run_nightly
 from evaluator import clear_baseline_cache
 from budget_guard import BudgetTracker, BudgetConfig
+from checkpoint_manager import save_checkpoint
 
 # ── Paths ─────────────────────────────────────────────────────────────
 MEMORY_PATH = Path(__file__).parent / "karpathy_memory.jsonl"
@@ -255,16 +258,15 @@ def call_proposer(
 
     client = anthropic.Anthropic(api_key=api_key)
     try:
-        # Use assistant prefill to force JSON start — avoids markdown fences
+        # Request JSON output directly (no assistant prefill — unsupported on newer models)
         response = client.messages.create(
             model=model,
             max_tokens=budget.cfg.max_output_tokens_per_call if budget else 2000,
             messages=[
-                {"role": "user", "content": user_message},
-                {"role": "assistant", "content": "{"},
+                {"role": "user", "content": user_message + "\n\nReturn ONLY the raw JSON object. No markdown fences, no explanation."},
             ],
         )
-        text = "{" + response.content[0].text.strip()
+        text = response.content[0].text.strip()
 
         # Record usage
         if budget:
@@ -361,16 +363,15 @@ def call_critic(
 
     client = anthropic.Anthropic(api_key=api_key)
     try:
-        # Use assistant prefill to force JSON start
+        # Request JSON output directly (no assistant prefill — unsupported on newer models)
         response = client.messages.create(
             model=model,
             max_tokens=budget.cfg.max_output_tokens_per_call if budget else 1500,
             messages=[
-                {"role": "user", "content": user_message},
-                {"role": "assistant", "content": "{"},
+                {"role": "user", "content": user_message + "\n\nReturn ONLY the raw JSON object. No markdown fences, no explanation."},
             ],
         )
-        text = "{" + response.content[0].text.strip()
+        text = response.content[0].text.strip()
 
         # Record usage
         if budget:
@@ -711,6 +712,49 @@ def _write_karpathy_review(
     KARPATHY_REVIEW_PATH.write_text("\n".join(lines), encoding="utf-8")
 
 
+# ── Champion Caching ──────────────────────────────────────────────────
+
+_champion_cache = {}  # module-level cache, cleared between karpathy_runner invocations
+
+
+def _compute_data_hash(db_path: Path) -> str:
+    """Hash the DB file's modification time + size.
+
+    Not a content hash (too slow for large DBs). Sufficient because
+    the DB only changes when the collector appends new data.
+    """
+    try:
+        stat = db_path.stat()
+        key = f"{stat.st_mtime_ns}:{stat.st_size}"
+        return hashlib.sha256(key.encode()).hexdigest()[:16]
+    except OSError:
+        return "no_db"
+
+
+def _compute_hypothesis_hash(hypothesis: dict) -> str:
+    """Hash the hypothesis dict for cache keying."""
+    serialized = json.dumps(hypothesis, sort_keys=True, default=str)
+    return hashlib.sha256(serialized.encode()).hexdigest()[:16]
+
+
+def _get_cached_champion(data_hash: str, hyp_hash: str):
+    """Return cached (diagnostics, rules, metrics) or None if cache miss."""
+    key = f"{data_hash}:{hyp_hash}"
+    cached = _champion_cache.get(key)
+    if cached:
+        print(f"  [CACHE] Champion cache HIT (data={data_hash[:8]}, hyp={hyp_hash[:8]})")
+        return cached
+    return None
+
+
+def _set_champion_cache(data_hash: str, hyp_hash: str,
+                        diagnostics: dict, rules: list, metrics: dict):
+    """Store champion results in cache."""
+    key = f"{data_hash}:{hyp_hash}"
+    _champion_cache[key] = (diagnostics, rules, metrics)
+    print(f"  [CACHE] Champion cached (data={data_hash[:8]}, hyp={hyp_hash[:8]})")
+
+
 # ── Main Runner ───────────────────────────────────────────────────────
 
 def run_karpathy(
@@ -762,22 +806,35 @@ def run_karpathy(
     print(f"  Model: {eff_model}")
     print("=" * 80)
 
-    # ── Step 1: Run champion baseline ─────────────────────────────────
+    # ── Step 1: Run champion baseline (with caching) ─────────────────
     print("\n" + "─" * 60)
     print("  PHASE 1: CHAMPION BASELINE")
     print("─" * 60)
 
     hypothesis = load_hypothesis()
 
-    with HypothesisOverride(hypothesis):
-        clear_baseline_cache()  # FIX: fresh cache for each run
-        champion_diag = run_nightly(db_path=db_path, verbose=verbose)
+    # Compute cache keys
+    data_hash = _compute_data_hash(db_path)
+    hyp_hash = _compute_hypothesis_hash(hypothesis)
 
-    # Save champion artifacts
-    _copy_artifacts(ARTIFACTS_DIR, CHAMPION_ARTIFACTS)
-    _validate_champion_consistency(CHAMPION_ARTIFACTS, champion_diag)
-    champion_rules = _load_rules(ARTIFACTS_DIR)
-    champion_metrics = extract_metrics(champion_diag, champion_rules)
+    # Check cache
+    cached = _get_cached_champion(data_hash, hyp_hash)
+    if cached is not None:
+        champion_diag, champion_rules, champion_metrics = cached
+    else:
+        with HypothesisOverride(hypothesis):
+            clear_baseline_cache()  # FIX: fresh cache for each run
+            champion_diag = run_nightly(db_path=db_path, verbose=verbose)
+
+        # Save champion artifacts
+        _copy_artifacts(ARTIFACTS_DIR, CHAMPION_ARTIFACTS)
+        _validate_champion_consistency(CHAMPION_ARTIFACTS, champion_diag)
+        champion_rules = _load_rules(ARTIFACTS_DIR)
+        champion_metrics = extract_metrics(champion_diag, champion_rules)
+
+        # Cache for reuse on subsequent challengers
+        _set_champion_cache(data_hash, hyp_hash,
+                            champion_diag, champion_rules, champion_metrics)
 
     print(f"\n  Champion metrics:")
     print(f"    Rules: {champion_metrics['total_rules']} "
@@ -999,6 +1056,21 @@ def run_karpathy(
             mutations_accepted += 1
             att_record["accepted"] = True
 
+            # Build knob_changed for checkpoint
+            changes = patch.get("changes", {})
+            knob_changed = {}
+            for change_key, change_val in changes.items():
+                if isinstance(change_val, dict):
+                    for k, v in change_val.items():
+                        old_val = hypothesis.get(change_key, {}).get(k, "?")
+                        knob_changed[f"{change_key}.{k}"] = {"old": old_val, "new": v}
+                else:
+                    old_val = hypothesis.get(change_key, "?")
+                    knob_changed[change_key] = {"old": old_val, "new": change_val}
+
+            # Save pre-mutation champion metrics for checkpoint
+            pre_mutation_champion_metrics = copy.deepcopy(best_champion_metrics)
+
             # Update champion
             best_champion_metrics = challenger_metrics
             hypothesis = challenger_hypothesis
@@ -1008,6 +1080,21 @@ def run_karpathy(
             # Copy challenger artifacts to main
             _copy_artifacts(CHALLENGER_ARTIFACTS, ARTIFACTS_DIR)
             _copy_artifacts(CHALLENGER_ARTIFACTS, CHAMPION_ARTIFACTS)
+
+            # Save checkpoint (pre-mutation champion vs winning challenger)
+            save_checkpoint(
+                hypothesis_snapshot=challenger_hypothesis,
+                champion_metrics=pre_mutation_champion_metrics,
+                challenger_metrics=challenger_metrics,
+                data_hash=data_hash,
+                hypothesis_hash=_compute_hypothesis_hash(challenger_hypothesis),
+                knob_changed=knob_changed,
+                judge_verdict=decision,
+                accepted_rules=challenger_rules,
+            )
+
+            # Invalidate champion cache (hypothesis changed)
+            _champion_cache.clear()
         else:
             print(f"  ✗ CHAMPION RETAINED: {decision['reason']}")
 

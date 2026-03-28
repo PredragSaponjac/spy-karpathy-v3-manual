@@ -291,8 +291,17 @@ FLAT_THRESH = {
 # Do NOT change defaults here — change hypothesis.py instead.
 RULE_FAMILIES_ENABLED = {
     "level": True, "interaction": True, "divergence": True,
-    "sequence": True, "skip": True,
+    "sequence": True, "skip": True, "confluence": False,
 }
+
+# ─── Confluence Family ─────────────────────────────────────────────────
+# Confluence rules combine two already-promoted rules from different families.
+# Disabled by default — Karpathy must toggle "confluence": true to activate.
+MAX_CONFLUENCE_CANDIDATES  = 200     # max pairwise combos to evaluate per run
+MAX_CONFLUENCE_PROMOTED    = 2       # max confluence rules to promote per run
+CONFLUENCE_MARGINAL_HURDLE = 0.10    # must beat best parent composite by 10%
+CONFLUENCE_MIN_JACCARD     = 0.05    # too disjoint (rare overlap) = skip
+CONFLUENCE_MAX_JACCARD     = 0.80    # too similar (redundant) = skip
 FEATURE_FAMILY_WEIGHTS = {}      # empty = all 1.0
 DIVERGENCE_FAMILY_WEIGHTS = {}   # empty = all 1.0
 SEQUENCE_FAMILY_WEIGHTS = {}     # empty = all 1.0

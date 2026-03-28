@@ -482,6 +482,189 @@ def generate_skip_rules(df: pd.DataFrame,
     return rules
 
 
+# ─── F. Confluence Rules ───────────────────────────────────────────────
+
+def generate_confluence_rules(
+    promoted_scores: list,
+    horizons: List[int] = None,
+) -> List[CandidateRule]:
+    """Generate pairwise cross-family combinations from promoted non-confluence rules.
+
+    Guardrails:
+    - Pairwise only (exactly 2 parent rules)
+    - Cross-family only (different source_family)
+    - No C_ from C_ (no nested confluence)
+    - Parents must share the same direction (both SHORT or both LONG)
+    - Parents must share at least one common horizon
+    - Capped at MAX_CONFLUENCE_CANDIDATES total
+    """
+    import random
+    import config as _cfg
+
+    max_candidates = getattr(_cfg, 'MAX_CONFLUENCE_CANDIDATES', 200)
+
+    if horizons is None:
+        horizons = PRIMARY_HORIZONS
+
+    # Filter: only non-SKIP, non-confluence promoted rules
+    eligible = [
+        s for s in promoted_scores
+        if s.get("direction") in ("LONG", "SHORT")
+        and s.get("source_family", "") != "confluence"
+    ]
+
+    if len(eligible) < 2:
+        return []
+
+    rules = []
+
+    for i in range(len(eligible)):
+        for j in range(i + 1, len(eligible)):
+            r1 = eligible[i]
+            r2 = eligible[j]
+
+            # Cross-family only
+            if r1.get("source_family") == r2.get("source_family"):
+                continue
+
+            # Same direction only
+            if r1.get("direction") != r2.get("direction"):
+                continue
+
+            direction = r1["direction"]
+
+            # Merge predicates from both parents
+            preds_1 = [Predicate(**p) for p in r1.get("predicates", [])]
+            preds_2 = [Predicate(**p) for p in r2.get("predicates", [])]
+
+            # Deduplicate predicates (same feature+op+value = keep once)
+            seen = set()
+            merged_preds = []
+            for p in preds_1 + preds_2:
+                key = (p.feature, p.op, str(p.value), str(p.value_hi))
+                if key not in seen:
+                    seen.add(key)
+                    merged_preds.append(p)
+
+            # Skip if merged has too many predicates (complexity guard)
+            if len(merged_preds) > MAX_PREDICATES_ELITE:
+                continue
+
+            # Use the longer horizon of the two parents
+            hz = max(r1.get("horizon_min", 60), r2.get("horizon_min", 60))
+            # Only use horizons that are in PRIMARY_HORIZONS
+            if hz not in horizons:
+                hz = max(horizons)
+
+            name_1 = r1.get("name", "r1").split("_")[1] if "_" in r1.get("name", "") else "r1"
+            name_2 = r2.get("name", "r2").split("_")[1] if "_" in r2.get("name", "") else "r2"
+            fam_1 = r1.get("source_family", "x")[:3]
+            fam_2 = r2.get("source_family", "x")[:3]
+
+            name = f"C_{fam_1}_{fam_2}_{direction}_{hz}m"
+            # Make unique by adding index
+            name = f"{name}_{i}x{j}"
+
+            rule = CandidateRule(
+                name=name,
+                direction=direction,
+                predicates=merged_preds,
+                horizon_min=hz,
+                source_family='confluence',
+            )
+            rules.append(rule)
+
+    # Cap by random sampling if over limit
+    if len(rules) > max_candidates:
+        rng = random.Random(42)
+        rules = rng.sample(rules, max_candidates)
+
+    return rules
+
+
+def prune_confluence_by_overlap(
+    confluence_scores: list,
+    base_scores: list,
+    df,
+) -> list:
+    """Prune confluence rules by Jaccard overlap and marginal utility hurdle.
+
+    Removes confluence rules that:
+    - Overlap too much with parent rules (redundant)
+    - Overlap too little (too rare to be useful)
+    - Don't beat their best parent by the marginal hurdle
+
+    Returns filtered list of RuleScore objects.
+    """
+    import config as _cfg
+
+    min_jaccard = getattr(_cfg, 'CONFLUENCE_MIN_JACCARD', 0.05)
+    max_jaccard = getattr(_cfg, 'CONFLUENCE_MAX_JACCARD', 0.80)
+    marginal_hurdle = getattr(_cfg, 'CONFLUENCE_MARGINAL_HURDLE', 0.10)
+    max_promoted = getattr(_cfg, 'MAX_CONFLUENCE_PROMOTED', 2)
+
+    # Build mask cache for base rules
+    base_masks = {}
+    for bs in base_scores:
+        mask = bs.rule.evaluate(df)
+        base_masks[bs.rule.name] = mask
+
+    surviving = []
+    for cs in confluence_scores:
+        c_mask = cs.rule.evaluate(df)
+        c_support = c_mask.sum()
+
+        if c_support < 1:
+            continue
+
+        # Check Jaccard overlap with each same-direction base rule
+        too_similar = False
+        too_disjoint = True
+        has_same_dir = False
+
+        for bs in base_scores:
+            if bs.rule.direction != cs.rule.direction:
+                continue
+            has_same_dir = True
+            b_mask = base_masks.get(bs.rule.name)
+            if b_mask is None:
+                continue
+
+            intersection = (c_mask & b_mask).sum()
+            union = (c_mask | b_mask).sum()
+            jaccard = intersection / union if union > 0 else 0
+
+            if jaccard > max_jaccard:
+                too_similar = True
+                break
+            if jaccard >= min_jaccard:
+                too_disjoint = False
+
+        # If no same-direction base rules exist, skip disjoint check
+        if not has_same_dir:
+            too_disjoint = False
+
+        if too_similar or too_disjoint:
+            continue
+
+        # Marginal utility hurdle: must beat best same-direction base rule
+        best_parent_composite = max(
+            (bs.composite_score for bs in base_scores
+             if bs.rule.direction == cs.rule.direction),
+            default=0
+        )
+        if best_parent_composite > 0:
+            improvement = (cs.composite_score - best_parent_composite) / best_parent_composite
+            if improvement < marginal_hurdle:
+                continue
+
+        surviving.append(cs)
+
+    # Sort by composite and cap
+    surviving.sort(key=lambda s: s.composite_score, reverse=True)
+    return surviving[:max_promoted]
+
+
 # ─── Main Compilation Pipeline ───────────────────────────────────────────
 
 def compile_all_candidates(df: pd.DataFrame, verbose: bool = True) -> List[CandidateRule]:
@@ -531,6 +714,12 @@ def compile_all_candidates(df: pd.DataFrame, verbose: bool = True) -> List[Candi
             print(f"  Skip rules:        {len(skip):6d}")
     elif verbose:
         print(f"  Skip rules:        DISABLED")
+
+    # NOTE: Confluence rules are NOT generated here.
+    # They are generated AFTER base promotion, from promoted rules only.
+    # See generate_confluence_rules() — called from karpathy_runner/nightly_train.
+    if enabled.get('confluence', False) and verbose:
+        print(f"  Confluence rules:  (generated after base promotion)")
 
     if verbose:
         print(f"  TOTAL candidates:  {len(all_rules):6d}")

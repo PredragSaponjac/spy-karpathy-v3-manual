@@ -21,13 +21,36 @@ You may propose changes ONLY to these bounded research knobs:
 - feature_family_weights (weight per feature family: tape, dealer, flow, skew, structure, expanded, 0dte, fluxgate, micro, internals, signals, context)
 - divergence_family_weights (weight per divergence sub-family: relative_strength, z_score_div, non_confirmation, recoupling, lead_lag, composite)
 - sequence_family_weights (weight per sequence sub-family: compression_expansion, divergence_chains, momentum_flips, qqq_lead_confirm, acceleration)
-- rule_family_enable (enable/disable a rule family: level, interaction, divergence, sequence, skip)
+- rule_family_enable (enable/disable a rule family: level, interaction, divergence, sequence, skip, confluence)
 - thresholds (min_support, max_overlap, neighbor_band_pct, min_composite_score)
 - skip_aggressiveness (scalar 0.5-2.0: higher = more aggressive skip)
 - intermarket_weight (scalar 0.3-2.5: higher = more QQQ/intermarket emphasis)
 - move_size_preference (scalar 0.5-2.0: higher = prefer larger tradable moves)
 
+CONFLUENCE FAMILY
+The system has a confluence rule family (C_) that combines already-promoted rules from different families into pairwise combinations. When enabled:
+- Pairwise cross-family combinations only (e.g. interaction + divergence)
+- Same evaluation pipeline, walk-forward, robustness checks
+- Must beat best parent rule composite by 10% (marginal utility hurdle)
+- Jaccard overlap pruning prevents redundant combinations
+- Max 2 confluence rules promoted per run
+- Disabled by default — toggle via rule_family_enable.confluence = true
+Consider enabling confluence if diagnostics show multiple strong rules from different families that fire in overlapping conditions.
+
 EXACTLY ONE KNOB CHANGE per patch. Each challenger = one mutation = clean credit assignment.
+
+VALID PARAMETER RANGES (patches outside these bounds are auto-rejected):
+  thresholds.min_support:         [15, 100]   (snapshots, current default: 20)
+  thresholds.max_overlap:         [0.30, 0.80] (Jaccard)
+  thresholds.neighbor_band_pct:   [0.05, 0.25] (±%)
+  thresholds.min_composite_score: [-5.0, 10.0]
+  feature_family_weights.*:       [0.3, 2.5]
+  divergence_family_weights.*:    [0.3, 2.5]
+  sequence_family_weights.*:      [0.3, 2.5]
+  skip_aggressiveness:            [0.5, 2.0]
+  intermarket_weight:             [0.3, 2.5]
+  move_size_preference:           [0.5, 2.0]
+DO NOT propose values outside these ranges — the validator will reject them.
 
 YOU MAY NOT:
 - edit evaluator.py, prepare_data.py, feature_factory.py, divergence_features.py, sequence_features.py, rule_compiler.py, live_rulebook.py
@@ -80,6 +103,14 @@ Read the diagnostics and ask:
 - Are we underweighting larger tradable moves in favor of noisy smaller ones?
 - Is there a simple new bounded search direction worth testing once?
 
+FEATURE ATTRIBUTION
+Diagnostics now include feature_attribution data:
+- top_by_support: features appearing in most promoted rules
+- top_by_lift: features in rules with highest net expectancy
+- worst_drag: families with lowest average expectancy
+- family_contribution: per-family rule count, composite, net expectancy
+Use this data to make targeted weight adjustments rather than guessing.
+
 GOOD EXAMPLES OF PATCHES
 - Increase divergence_family_weights.z_score_div if intermarket rules are consistently appearing in strong candidates.
 - Tighten thresholds.max_overlap if too many promoted rules are near-duplicates.
@@ -87,6 +118,7 @@ GOOD EXAMPLES OF PATCHES
 - Increase sequence_family_weights.compression_expansion if static rules dominate but fail robustness.
 - Increase move_size_preference if diagnostics show rules are capturing small noisy moves.
 - Increase intermarket_weight if QQQ divergence rules show strong walk-forward stability.
+- Enable confluence (rule_family_enable.confluence = true) if multiple strong cross-family rules exist and you want to test combinations.
 
 BAD EXAMPLES OF PATCHES
 - Rewrite the evaluator.
@@ -131,7 +163,7 @@ VALID KEYS INSIDE "changes" (pick exactly one per patch):
   "feature_family_weights": {"family_name": value}
   "divergence_family_weights": {"sub_family": value}
   "sequence_family_weights": {"sub_family": value}
-  "rule_family_enable": {"family_name": true_or_false}
+  "rule_family_enable": {"family_name": true_or_false}   (includes "confluence")
   "thresholds": {"threshold_name": value}
   "skip_aggressiveness": value
   "intermarket_weight": value
