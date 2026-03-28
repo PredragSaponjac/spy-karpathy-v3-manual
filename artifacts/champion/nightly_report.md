@@ -1,5 +1,5 @@
 # Karpathy Autoresearch — Nightly Report
-**Generated:** 2026-03-28 02:24
+**Generated:** 2026-03-27 22:03
 **Trading instrument:** 1 /MES contract
 **Maturity tier:** PRELIMINARY — 2-fold walk-forward validated
 
@@ -23,7 +23,7 @@
 - Slippage: 2 ticks RT = $2.50
 - All dollar figures are **estimated** based on these assumptions.
 
-## LONG Patterns (2)
+## LONG Patterns (1)
 
 ### I_tick_q5_Q0_qqq_atm_avg_iv_gt_LONG_60m
 **Direction:** LONG | **Horizon:** 60m | **Confidence:** PRELIMINARY (insufficient days)
@@ -44,25 +44,7 @@
 **Suggested stop:** 15.1 pts (60 ticks, $75)
 **Suggested target range:** 12.0–20.0 pts ($60–$100)
 
-### D_zdiv_vex_low_LONG_60m
-**Direction:** LONG | **Horizon:** 60m | **Confidence:** PRELIMINARY (insufficient days)
-
-**Conditions:**
-- zdiv_vex_state = strong_neg
-
-| Metric | Value |
-|--------|-------|
-| Sample size | 1194 snapshots across 7 day(s) |
-| Win rate | 44.7% |
-| Historically median favorable move | 20.5 pts ($103) |
-| Typical adverse excursion | 13.8 pts ($69) |
-| Estimated net expectancy (1 /MES) | **$-6.56** per trade |
-| Walk-forward stability | 75% (3/4 folds) |
-
-**Suggested stop:** 20.7 pts (83 ticks, $104)
-**Suggested target range:** 12.3–20.5 pts ($62–$103)
-
-## SHORT Patterns (4)
+## SHORT Patterns (5)
 
 ### I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m
 **Direction:** SHORT | **Horizon:** 60m | **Confidence:** PRELIMINARY (insufficient days)
@@ -138,6 +120,25 @@
 
 **Suggested stop:** 23.9 pts (95 ticks, $119)
 **Suggested target range:** 9.6–16.0 pts ($48–$80)
+
+### I_atm_avg_iv_q5_Q0_pct_of_day_lt_SHORT_30m
+**Direction:** SHORT | **Horizon:** 30m | **Confidence:** PRELIMINARY (insufficient days)
+
+**Conditions:**
+- atm_avg_iv_q5 = 0
+- pct_of_day < 0.3803
+
+| Metric | Value |
+|--------|-------|
+| Sample size | 4217 snapshots across 7 day(s) |
+| Win rate | 74.6% |
+| Historically median favorable move | 14.0 pts ($70) |
+| Typical adverse excursion | 7.0 pts ($35) |
+| Estimated net expectancy (1 /MES) | **$36.12** per trade |
+| Walk-forward stability | 100% (4/4 folds) |
+
+**Suggested stop:** 10.5 pts (42 ticks, $52)
+**Suggested target range:** 8.4–14.0 pts ($42–$70)
 
 ## SKIP Conditions (3)
 *When these conditions are active, avoid new entries.*

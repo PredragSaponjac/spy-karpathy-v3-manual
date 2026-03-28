@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-28 02:24",
+  "generated": "2026-03-27 22:03",
   "instrument": "/MES x1",
   "data": {
     "snapshots": 34951,
@@ -197,34 +197,40 @@
       "neighbor_robust": true
     },
     {
-      "name": "D_zdiv_vex_low_LONG_60m",
-      "direction": "LONG",
-      "horizon_min": 60,
+      "name": "I_atm_avg_iv_q5_Q0_pct_of_day_lt_SHORT_30m",
+      "direction": "SHORT",
+      "horizon_min": 30,
       "conditions_english": [
-        "zdiv_vex_state = strong_neg"
+        "atm_avg_iv_q5 = 0",
+        "pct_of_day < 0.3803"
       ],
       "conditions": [
         {
-          "feature": "zdiv_vex_state",
+          "feature": "atm_avg_iv_q5",
           "op": "eq",
-          "value": "strong_neg"
+          "value": 0
+        },
+        {
+          "feature": "pct_of_day",
+          "op": "lt",
+          "value": 0.3803418803418804
         }
       ],
-      "support": 1194,
+      "support": 4217,
       "distinct_days": 7,
-      "win_rate": 0.4472,
-      "median_mfe_pts": 20.51,
-      "median_mfe_usd": 102.56,
-      "median_mae_pts": 13.81,
-      "median_mae_usd": 69.05,
-      "net_expectancy_usd": -6.56,
-      "suggested_stop_pts": 20.72,
-      "suggested_stop_usd": 103.58,
-      "suggested_target_lo_pts": 12.31,
-      "suggested_target_hi_pts": 20.51,
-      "wf_stability": 0.75,
+      "win_rate": 0.7463,
+      "median_mfe_pts": 14.03,
+      "median_mfe_usd": 70.14,
+      "median_mae_pts": 6.97,
+      "median_mae_usd": 34.85,
+      "net_expectancy_usd": 36.12,
+      "suggested_stop_pts": 10.45,
+      "suggested_stop_usd": 52.27,
+      "suggested_target_lo_pts": 8.42,
+      "suggested_target_hi_pts": 14.03,
+      "wf_stability": 1.0,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 29.9865,
+      "composite_score": 31.7914,
       "neighbor_robust": true
     },
     {

@@ -224,43 +224,49 @@
     }
   },
   {
-    "name": "D_zdiv_vex_low_LONG_60m",
-    "direction": "LONG",
+    "name": "I_atm_avg_iv_q5_Q0_pct_of_day_lt_SHORT_30m",
+    "direction": "SHORT",
     "predicates": [
       {
-        "feature": "zdiv_vex_state",
+        "feature": "atm_avg_iv_q5",
         "op": "eq",
-        "value": "strong_neg"
+        "value": 0
+      },
+      {
+        "feature": "pct_of_day",
+        "op": "lt",
+        "value": 0.3803418803418804
       }
     ],
-    "horizon_min": 60,
-    "source_family": "divergence",
-    "complexity": 1,
-    "support": 1194,
+    "horizon_min": 30,
+    "source_family": "interaction",
+    "complexity": 2,
+    "support": 4217,
     "distinct_days": 7,
-    "mean_fwd_return_pct": -0.0049,
-    "median_fwd_return_pct": -0.0271,
-    "win_rate": 0.4472,
-    "median_mfe_pct": 0.3231,
-    "median_mae_pct": 0.2175,
-    "mes_gross_expectancy_usd": -1.56,
-    "mes_net_expectancy_usd": -6.56,
-    "mes_median_mfe_pts": 20.51,
-    "mes_median_mae_pts": 13.81,
+    "mean_fwd_return_pct": 0.1295,
+    "median_fwd_return_pct": 0.1003,
+    "win_rate": 0.7463,
+    "median_mfe_pct": 0.221,
+    "median_mae_pct": 0.1098,
+    "mes_gross_expectancy_usd": 41.12,
+    "mes_net_expectancy_usd": 36.12,
+    "mes_median_mfe_pts": 14.03,
+    "mes_median_mae_pts": 6.97,
     "wf_folds": 4,
-    "wf_profitable_folds": 3,
-    "wf_stability": 0.75,
-    "wf_mean_return": 0.0765,
-    "wf_mean_win_rate": 0.6323,
-    "composite_score": 29.9865,
+    "wf_profitable_folds": 4,
+    "wf_stability": 1.0,
+    "wf_mean_return": 0.1865,
+    "wf_mean_win_rate": 0.837,
+    "composite_score": 31.7914,
     "neighbor_robust": true,
     "day_concentration_ok": true,
-    "regime_concentration_ok": true,
-    "tod_bucket_count": 7,
-    "max_day_contribution_pct": 0.2496,
-    "max_regime_contribution_pct": 0.5532,
+    "regime_concentration_ok": false,
+    "tod_bucket_count": 5,
+    "max_day_contribution_pct": 0.3189,
+    "max_regime_contribution_pct": 0.9587,
     "penalties": {
-      "drawdown": 6.905
+      "drawdown": 3.4847,
+      "regime_concentration": 13.4519
     }
   },
   {
