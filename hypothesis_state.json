@@ -6,14 +6,42 @@
     "sequence": true,
     "skip": true
   },
-  "feature_family_weights": {},
-  "divergence_family_weights": {},
-  "sequence_family_weights": {},
+  "feature_family_weights": {
+    "tape": 1.0,
+    "dealer": 1.0,
+    "flow": 1.0,
+    "skew": 1.0,
+    "structure": 1.0,
+    "expanded": 1.0,
+    "0dte": 1.0,
+    "fluxgate": 1.0,
+    "micro": 1.0,
+    "internals": 1.0,
+    "signals": 1.0,
+    "context": 1.0
+  },
+  "divergence_family_weights": {
+    "relative_strength": 1.0,
+    "z_score_div": 1.0,
+    "non_confirmation": 1.0,
+    "recoupling": 1.0,
+    "lead_lag": 1.0,
+    "composite": 1.0
+  },
+  "sequence_family_weights": {
+    "compression_expansion": 1.0,
+    "divergence_chains": 1.0,
+    "momentum_flips": 1.0,
+    "qqq_lead_confirm": 1.0,
+    "acceleration": 1.0
+  },
   "thresholds": {
-    "min_support": 30,
-    "neighbor_band_pct": 0.1
+    "min_support": 20,
+    "max_overlap": 0.6,
+    "neighbor_band_pct": 0.1,
+    "min_composite_score": 0.0
   },
   "skip_aggressiveness": 1.0,
-  "intermarket_weight": 1.0,
-  "move_size_preference": 1.0
+  "intermarket_weight": 1.4,
+  "move_size_preference": 1.4
 }
