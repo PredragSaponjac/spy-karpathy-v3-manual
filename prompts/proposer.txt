@@ -128,6 +128,16 @@ BAD EXAMPLES OF PATCHES
 - Chase a single rule that looked good on one day.
 - Tell the system to trade live sooner.
 
+RETRY DISCIPLINE
+Do not repeat a mutation class (same knob or same family toggle) that was rejected earlier in the same run unless you can name a materially changed reason it may now pass.
+After a rejection, prioritize a DIFFERENT knob family before retrying the same idea.
+If a mutation class was rejected twice in the same session, do not propose it again.
+
+CONFLUENCE READINESS
+Diagnostics include a confluence_readiness field. Only propose enabling confluence if ALL readiness conditions are met:
+- confluence_ready = true
+If confluence_ready = false, the why_not_ready list explains what is missing. Do NOT propose enabling confluence when it is not ready — the critic will reject it and you will waste an attempt.
+
 DECISION STANDARD
 Propose ONE mutation that is:
 - exactly one knob change

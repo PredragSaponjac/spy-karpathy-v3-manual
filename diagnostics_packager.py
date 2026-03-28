@@ -138,6 +138,10 @@ def package_diagnostics(
     if accepted_rules:
         package["feature_attribution"] = _build_feature_attribution(accepted_rules)
 
+    # ── Confluence readiness gate ─────────────────────────────────────
+    package["confluence_readiness"] = _check_confluence_readiness(
+        n_days, accepted_rules)
+
     # ── Current hypothesis ────────────────────────────────────────────
     package["current_hypothesis"] = {
         "rule_families": hypothesis.get("rule_families", {}),
@@ -157,6 +161,50 @@ def package_diagnostics(
     package["recent_experiments"] = _get_rolling_memory()
 
     return package
+
+
+def _check_confluence_readiness(n_days: int, accepted_rules: list) -> dict:
+    """Check if conditions are met for enabling confluence.
+
+    Returns a compact readiness assessment for the proposer.
+    """
+    why_not = []
+
+    # Gate 1: Minimum data days
+    min_days = 12
+    if n_days < min_days:
+        why_not.append(f"only {n_days} days (need >={min_days})")
+
+    # Gate 2: Entry rules exist
+    entry_rules = [r for r in accepted_rules if r.get("direction") != "SKIP"]
+    if len(entry_rules) < 2:
+        why_not.append(f"only {len(entry_rules)} entry rules (need >=2)")
+
+    # Gate 3: Cross-family diversity (at least 2 distinct source_families among entry rules)
+    entry_families = set(r.get("source_family", "") for r in entry_rules)
+    if len(entry_families) < 2:
+        why_not.append(f"only {len(entry_families)} entry family(s): {sorted(entry_families)} (need >=2)")
+
+    # Gate 4: Regime concentration not already failing
+    regime_fail = any(not r.get("regime_concentration_ok", True) for r in accepted_rules)
+    if regime_fail:
+        why_not.append("regime concentration already failing")
+
+    # Gate 5: Direction balance (not 100% one-sided)
+    directions = set(r.get("direction", "") for r in entry_rules)
+    if len(directions) == 1 and len(entry_rules) >= 3:
+        only_dir = list(directions)[0]
+        why_not.append(f"all {len(entry_rules)} entry rules are {only_dir} (no directional diversity)")
+
+    ready = len(why_not) == 0
+
+    return {
+        "confluence_ready": ready,
+        "why_not_ready": why_not if not ready else [],
+        "entry_families": sorted(entry_families) if entry_rules else [],
+        "entry_count": len(entry_rules),
+        "data_days": n_days,
+    }
 
 
 def _build_feature_attribution(accepted_rules: list) -> dict:

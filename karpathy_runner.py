@@ -890,6 +890,7 @@ def run_karpathy(
     best_champion_metrics = champion_metrics
     mutations_accepted = 0
     attempt_log = []   # for review reports
+    rejected_this_session = []  # track rejected mutation classes for retry discipline
 
     for attempt in range(1, eff_max + 1):
         # ── Budget gate: can we start a new challenger? ───────────
@@ -911,8 +912,10 @@ def run_karpathy(
                       "challenger_metrics": None, "decision": None,
                       "accepted": False}
 
-        # Package diagnostics
+        # Package diagnostics + inject rejected mutations for retry discipline
         diag_package = package_from_artifacts()
+        if rejected_this_session:
+            diag_package["rejected_this_session"] = rejected_this_session
         context_str = format_proposer_context(diag_package)
 
         # ── Get patch ─────────────────────────────────────────────────
@@ -1002,6 +1005,17 @@ def run_karpathy(
                     print(f"  Critic KILLED the patch:")
                     for c in concerns:
                         print(f"    - {c}")
+
+                    # Track rejected mutation for retry discipline
+                    rejected_this_session.append({
+                        "attempt": attempt,
+                        "summary": summary,
+                        "patch_type": patch.get("patch_type", "unknown"),
+                        "changes_key": list(patch.get("changes", {}).keys()),
+                        "rejected_by": "critic",
+                        "reason_short": concerns[0][:120] if concerns else "no reason",
+                    })
+
                     att_record["phase"] = "critic"
                     attempt_log.append(att_record)
                     log_experiment({
@@ -1097,6 +1111,17 @@ def run_karpathy(
             _champion_cache.clear()
         else:
             print(f"  ✗ CHAMPION RETAINED: {decision['reason']}")
+
+            # Track rejected mutation for retry discipline
+            rejected_this_session.append({
+                "attempt": attempt,
+                "summary": summary,
+                "patch_type": patch.get("patch_type", "unknown"),
+                "changes_key": list(patch.get("changes", {}).keys()),
+                "rejected_by": "judge",
+                "verdict": decision.get("verdict", "REJECT"),
+                "reason_short": decision.get("reason", "")[:120],
+            })
 
         attempt_log.append(att_record)
 
