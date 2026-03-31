@@ -1,53 +1,22 @@
 {
-  "generated": "2026-03-31 15:12",
+  "generated": "2026-03-31 16:35",
   "instrument": "/MES x1",
   "data": {
-    "snapshots": 39952,
+    "snapshots": 41809,
     "days": 10,
-    "features": 780,
+    "features": 782,
     "candidates": 6297,
     "promoted": 9,
     "preliminary": false
   },
   "assumptions": {
-    "mes_reference_price": 6411.2,
-    "mes_reference_source": "live SPY spot 641.12 x10",
+    "mes_reference_price": 6502.1,
+    "mes_reference_source": "live SPY spot 650.21 x10",
     "point_value": 5.0,
     "round_trip_cost": 2.5,
     "slippage_usd": 2.5
   },
   "rules": [
-    {
-      "name": "L_otm_put_pct_low_SHORT_60m",
-      "direction": "SHORT",
-      "horizon_min": 60,
-      "conditions_english": [
-        "otm_put_pct < 0.2"
-      ],
-      "conditions": [
-        {
-          "feature": "otm_put_pct",
-          "op": "lt",
-          "value": 0.2
-        }
-      ],
-      "support": 66,
-      "distinct_days": 7,
-      "win_rate": 0.7727,
-      "median_mfe_pts": 27.68,
-      "median_mfe_usd": 138.42,
-      "median_mae_pts": 3.23,
-      "median_mae_usd": 16.14,
-      "net_expectancy_usd": 162.71,
-      "suggested_stop_pts": 4.84,
-      "suggested_stop_usd": 24.21,
-      "suggested_target_lo_pts": 16.61,
-      "suggested_target_hi_pts": 27.68,
-      "wf_stability": 0.6,
-      "confidence": "MODERATE",
-      "composite_score": 105.6988,
-      "neighbor_robust": true
-    },
     {
       "name": "D_zdiv_nope_high_SHORT_30m",
       "direction": "SHORT",
@@ -62,21 +31,52 @@
           "value": "strong_pos"
         }
       ],
-      "support": 122,
-      "distinct_days": 8,
-      "win_rate": 0.7705,
-      "median_mfe_pts": 36.68,
-      "median_mfe_usd": 183.4,
-      "median_mae_pts": 3.02,
-      "median_mae_usd": 15.08,
-      "net_expectancy_usd": 47.43,
-      "suggested_stop_pts": 4.52,
-      "suggested_stop_usd": 22.62,
-      "suggested_target_lo_pts": 22.01,
-      "suggested_target_hi_pts": 36.68,
+      "support": 130,
+      "distinct_days": 9,
+      "win_rate": 0.7846,
+      "median_mfe_pts": 23.73,
+      "median_mfe_usd": 118.63,
+      "median_mae_pts": 3.95,
+      "median_mae_usd": 19.75,
+      "net_expectancy_usd": 54.93,
+      "suggested_stop_pts": 5.92,
+      "suggested_stop_usd": 29.62,
+      "suggested_target_lo_pts": 14.24,
+      "suggested_target_hi_pts": 23.73,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 81.3937,
+      "composite_score": 77.9824,
+      "neighbor_robust": true
+    },
+    {
+      "name": "L_otm_put_pct_low_SHORT_60m",
+      "direction": "SHORT",
+      "horizon_min": 60,
+      "conditions_english": [
+        "otm_put_pct < 0.2"
+      ],
+      "conditions": [
+        {
+          "feature": "otm_put_pct",
+          "op": "lt",
+          "value": 0.2
+        }
+      ],
+      "support": 75,
+      "distinct_days": 8,
+      "win_rate": 0.7867,
+      "median_mfe_pts": 5.27,
+      "median_mfe_usd": 26.33,
+      "median_mae_pts": 43.25,
+      "median_mae_usd": 216.25,
+      "net_expectancy_usd": 158.28,
+      "suggested_stop_pts": 64.88,
+      "suggested_stop_usd": 324.38,
+      "suggested_target_lo_pts": 3.16,
+      "suggested_target_hi_pts": 5.27,
+      "wf_stability": 0.6667,
+      "confidence": "MODERATE",
+      "composite_score": 63.3111,
       "neighbor_robust": true
     },
     {
@@ -93,21 +93,21 @@
           "value": "strong_pos"
         }
       ],
-      "support": 144,
-      "distinct_days": 8,
-      "win_rate": 0.6181,
-      "median_mfe_pts": 11.5,
-      "median_mfe_usd": 57.51,
-      "median_mae_pts": 6.94,
-      "median_mae_usd": 34.71,
-      "net_expectancy_usd": 62.82,
-      "suggested_stop_pts": 10.41,
-      "suggested_stop_usd": 52.07,
-      "suggested_target_lo_pts": 6.9,
-      "suggested_target_hi_pts": 11.5,
+      "support": 149,
+      "distinct_days": 9,
+      "win_rate": 0.6309,
+      "median_mfe_pts": 12.19,
+      "median_mfe_usd": 60.93,
+      "median_mae_pts": 6.68,
+      "median_mae_usd": 33.41,
+      "net_expectancy_usd": 64.95,
+      "suggested_stop_pts": 10.02,
+      "suggested_stop_usd": 50.12,
+      "suggested_target_lo_pts": 7.31,
+      "suggested_target_hi_pts": 12.19,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 53.8967,
+      "composite_score": 56.2344,
       "neighbor_robust": true
     },
     {
@@ -116,7 +116,7 @@
       "horizon_min": 60,
       "conditions_english": [
         "atm_avg_iv_q5 = 0",
-        "trin > 0.85"
+        "trin > 0.86"
       ],
       "conditions": [
         {
@@ -127,24 +127,24 @@
         {
           "feature": "trin",
           "op": "gt",
-          "value": 0.85
+          "value": 0.86
         }
       ],
-      "support": 4915,
-      "distinct_days": 6,
-      "win_rate": 0.8783,
-      "median_mfe_pts": 17.99,
-      "median_mfe_usd": 89.94,
-      "median_mae_pts": 7.92,
-      "median_mae_usd": 39.59,
-      "net_expectancy_usd": 65.08,
-      "suggested_stop_pts": 11.88,
-      "suggested_stop_usd": 59.38,
-      "suggested_target_lo_pts": 10.79,
-      "suggested_target_hi_pts": 17.99,
+      "support": 5011,
+      "distinct_days": 7,
+      "win_rate": 0.8835,
+      "median_mfe_pts": 20.37,
+      "median_mfe_usd": 101.84,
+      "median_mae_pts": 9.89,
+      "median_mae_usd": 49.47,
+      "net_expectancy_usd": 68.51,
+      "suggested_stop_pts": 14.84,
+      "suggested_stop_usd": 74.2,
+      "suggested_target_lo_pts": 12.22,
+      "suggested_target_hi_pts": 20.37,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 52.6355,
+      "composite_score": 55.8887,
       "neighbor_robust": true
     },
     {
@@ -153,7 +153,7 @@
       "horizon_min": 60,
       "conditions_english": [
         "atm_avg_iv_q5 = 0",
-        "spot_vs_poc > -0.1366"
+        "spot_vs_poc > -0.1196"
       ],
       "conditions": [
         {
@@ -164,24 +164,24 @@
         {
           "feature": "spot_vs_poc",
           "op": "gt",
-          "value": -0.136618174721129
+          "value": -0.1195868855423787
         }
       ],
-      "support": 6071,
-      "distinct_days": 7,
-      "win_rate": 0.763,
-      "median_mfe_pts": 22.35,
-      "median_mfe_usd": 111.74,
-      "median_mae_pts": 14.14,
-      "median_mae_usd": 70.7,
-      "net_expectancy_usd": 42.7,
-      "suggested_stop_pts": 21.21,
-      "suggested_stop_usd": 106.06,
-      "suggested_target_lo_pts": 13.41,
-      "suggested_target_hi_pts": 22.35,
+      "support": 5774,
+      "distinct_days": 8,
+      "win_rate": 0.7719,
+      "median_mfe_pts": 22.83,
+      "median_mfe_usd": 114.16,
+      "median_mae_pts": 13.85,
+      "median_mae_usd": 69.23,
+      "net_expectancy_usd": 44.44,
+      "suggested_stop_pts": 20.77,
+      "suggested_stop_usd": 103.85,
+      "suggested_target_lo_pts": 13.7,
+      "suggested_target_hi_pts": 22.83,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 50.4051,
+      "composite_score": 53.0209,
       "neighbor_robust": true
     },
     {
@@ -198,21 +198,21 @@
           "value": "strong_pos"
         }
       ],
-      "support": 2489,
-      "distinct_days": 8,
-      "win_rate": 0.5986,
-      "median_mfe_pts": 21.78,
-      "median_mfe_usd": 108.92,
-      "median_mae_pts": 13.87,
-      "median_mae_usd": 69.34,
-      "net_expectancy_usd": 26.07,
-      "suggested_stop_pts": 20.8,
-      "suggested_stop_usd": 104.01,
-      "suggested_target_lo_pts": 13.07,
-      "suggested_target_hi_pts": 21.78,
+      "support": 2714,
+      "distinct_days": 9,
+      "win_rate": 0.6164,
+      "median_mfe_pts": 25.3,
+      "median_mfe_usd": 126.51,
+      "median_mae_pts": 13.18,
+      "median_mae_usd": 65.89,
+      "net_expectancy_usd": 30.57,
+      "suggested_stop_pts": 19.77,
+      "suggested_stop_usd": 98.83,
+      "suggested_target_lo_pts": 15.18,
+      "suggested_target_hi_pts": 25.3,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 43.5892,
+      "composite_score": 50.7832,
       "neighbor_robust": true
     },
     {
@@ -236,8 +236,8 @@
           "value": 0.25
         }
       ],
-      "support": 4911,
-      "distinct_days": 9,
+      "support": 5253,
+      "distinct_days": 10,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -250,13 +250,13 @@
       "suggested_target_hi_pts": 0.0,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 19.6241,
+      "composite_score": 20.0118,
       "neighbor_robust": true
     },
     {
-      "name": "SKIP_weak_gate_30m",
+      "name": "SKIP_weak_gate_15m",
       "direction": "SKIP",
-      "horizon_min": 30,
+      "horizon_min": 15,
       "conditions_english": [
         "structural_gate < 0.2"
       ],
@@ -267,8 +267,8 @@
           "value": 0.2
         }
       ],
-      "support": 603,
-      "distinct_days": 9,
+      "support": 746,
+      "distinct_days": 10,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -279,9 +279,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.6,
-      "confidence": "MODERATE",
-      "composite_score": 14.2544,
+      "wf_stability": 0.5,
+      "confidence": "LOW",
+      "composite_score": 16.0083,
       "neighbor_robust": true
     },
     {
@@ -298,8 +298,8 @@
           "value": 0.15
         }
       ],
-      "support": 10492,
-      "distinct_days": 9,
+      "support": 11365,
+      "distinct_days": 10,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -310,9 +310,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.6,
+      "wf_stability": 0.6667,
       "confidence": "MODERATE",
-      "composite_score": 12.4572,
+      "composite_score": 14.1317,
       "neighbor_robust": true
     }
   ]

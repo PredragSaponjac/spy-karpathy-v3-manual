@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-31 07:08:20",
+  "generated": "2026-03-31 15:12:18",
   "config": {
     "hard_budget_usd": 30.0,
     "soft_budget_usd": 24.0,
@@ -9,17 +9,17 @@
     "default_model": "claude-opus-4-6"
   },
   "spend": {
-    "total_usd": 0.62076,
-    "remaining_usd": 29.37924,
-    "pct_of_hard_cap": 2.07
+    "total_usd": 1.412715,
+    "remaining_usd": 28.587285,
+    "pct_of_hard_cap": 4.71
   },
   "calls": {
-    "proposer": 2,
-    "critic": 2,
-    "total": 4
+    "proposer": 5,
+    "critic": 4,
+    "total": 9
   },
   "challengers": {
-    "attempted": 2,
+    "attempted": 5,
     "max": 5
   },
   "stop_reason": null
