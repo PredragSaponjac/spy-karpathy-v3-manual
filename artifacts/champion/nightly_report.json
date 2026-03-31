@@ -1,29 +1,122 @@
 {
-  "generated": "2026-03-27 22:03",
+  "generated": "2026-03-31 07:33",
   "instrument": "/MES x1",
   "data": {
-    "snapshots": 34951,
-    "days": 8,
-    "features": 778,
+    "snapshots": 38948,
+    "days": 9,
+    "features": 780,
     "candidates": 6297,
     "promoted": 9,
     "preliminary": true
   },
   "assumptions": {
-    "mes_reference_price": 6348.9,
-    "mes_reference_source": "live SPY spot 634.89 x10",
+    "mes_reference_price": 6317.7,
+    "mes_reference_source": "live SPY spot 631.77 x10",
     "point_value": 5.0,
     "round_trip_cost": 2.5,
     "slippage_usd": 2.5
   },
   "rules": [
     {
+      "name": "L_otm_put_pct_low_SHORT_60m",
+      "direction": "SHORT",
+      "horizon_min": 60,
+      "conditions_english": [
+        "otm_put_pct < 0.2"
+      ],
+      "conditions": [
+        {
+          "feature": "otm_put_pct",
+          "op": "lt",
+          "value": 0.2
+        }
+      ],
+      "support": 66,
+      "distinct_days": 7,
+      "win_rate": 0.7727,
+      "median_mfe_pts": 27.28,
+      "median_mfe_usd": 136.4,
+      "median_mae_pts": 3.18,
+      "median_mae_usd": 15.91,
+      "net_expectancy_usd": 160.26,
+      "suggested_stop_pts": 4.77,
+      "suggested_stop_usd": 23.86,
+      "suggested_target_lo_pts": 16.37,
+      "suggested_target_hi_pts": 27.28,
+      "wf_stability": 0.6,
+      "confidence": "PRELIMINARY (insufficient days)",
+      "composite_score": 104.8616,
+      "neighbor_robust": true
+    },
+    {
+      "name": "D_zdiv_nope_high_SHORT_30m",
+      "direction": "SHORT",
+      "horizon_min": 30,
+      "conditions_english": [
+        "zdiv_nope_state = strong_pos"
+      ],
+      "conditions": [
+        {
+          "feature": "zdiv_nope_state",
+          "op": "eq",
+          "value": "strong_pos"
+        }
+      ],
+      "support": 122,
+      "distinct_days": 8,
+      "win_rate": 0.7705,
+      "median_mfe_pts": 36.14,
+      "median_mfe_usd": 180.72,
+      "median_mae_pts": 2.97,
+      "median_mae_usd": 14.86,
+      "net_expectancy_usd": 46.66,
+      "suggested_stop_pts": 4.46,
+      "suggested_stop_usd": 22.29,
+      "suggested_target_lo_pts": 21.69,
+      "suggested_target_hi_pts": 36.14,
+      "wf_stability": 1.0,
+      "confidence": "PRELIMINARY (insufficient days)",
+      "composite_score": 80.367,
+      "neighbor_robust": true
+    },
+    {
+      "name": "D_zdiv_net_prem_high_SHORT_15m",
+      "direction": "SHORT",
+      "horizon_min": 15,
+      "conditions_english": [
+        "zdiv_net_prem_state = strong_pos"
+      ],
+      "conditions": [
+        {
+          "feature": "zdiv_net_prem_state",
+          "op": "eq",
+          "value": "strong_pos"
+        }
+      ],
+      "support": 144,
+      "distinct_days": 8,
+      "win_rate": 0.6181,
+      "median_mfe_pts": 11.33,
+      "median_mfe_usd": 56.67,
+      "median_mae_pts": 6.84,
+      "median_mae_usd": 34.21,
+      "net_expectancy_usd": 61.83,
+      "suggested_stop_pts": 10.26,
+      "suggested_stop_usd": 51.31,
+      "suggested_target_lo_pts": 6.8,
+      "suggested_target_hi_pts": 11.33,
+      "wf_stability": 1.0,
+      "confidence": "PRELIMINARY (insufficient days)",
+      "composite_score": 53.2248,
+      "neighbor_robust": true
+    },
+    {
       "name": "I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m",
       "direction": "SHORT",
       "horizon_min": 60,
       "conditions_english": [
         "atm_avg_iv_q5 = 0",
-        "trin > 0.84"
+        "trin > 0.85"
       ],
       "conditions": [
         {
@@ -34,24 +127,24 @@
         {
           "feature": "trin",
           "op": "gt",
-          "value": 0.84
+          "value": 0.85
         }
       ],
-      "support": 5102,
+      "support": 4915,
       "distinct_days": 6,
-      "win_rate": 0.8755,
-      "median_mfe_pts": 17.84,
-      "median_mfe_usd": 89.18,
-      "median_mae_pts": 7.62,
-      "median_mae_usd": 38.12,
-      "net_expectancy_usd": 63.88,
-      "suggested_stop_pts": 11.43,
-      "suggested_stop_usd": 57.17,
-      "suggested_target_lo_pts": 10.7,
-      "suggested_target_hi_pts": 17.84,
+      "win_rate": 0.8783,
+      "median_mfe_pts": 17.73,
+      "median_mfe_usd": 88.63,
+      "median_mae_pts": 7.8,
+      "median_mae_usd": 39.01,
+      "net_expectancy_usd": 64.06,
+      "suggested_stop_pts": 11.7,
+      "suggested_stop_usd": 58.52,
+      "suggested_target_lo_pts": 10.64,
+      "suggested_target_hi_pts": 17.73,
       "wf_stability": 1.0,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 48.1223,
+      "composite_score": 51.8305,
       "neighbor_robust": true
     },
     {
@@ -60,7 +153,7 @@
       "horizon_min": 60,
       "conditions_english": [
         "atm_avg_iv_q5 = 0",
-        "spot_vs_poc > -0.1377"
+        "spot_vs_poc > -0.1366"
       ],
       "conditions": [
         {
@@ -71,24 +164,24 @@
         {
           "feature": "spot_vs_poc",
           "op": "gt",
-          "value": -0.13771620616618668
+          "value": -0.136618174721129
         }
       ],
-      "support": 6088,
+      "support": 6071,
       "distinct_days": 7,
-      "win_rate": 0.7623,
-      "median_mfe_pts": 22.13,
-      "median_mfe_usd": 110.65,
-      "median_mae_pts": 14.0,
-      "median_mae_usd": 70.02,
-      "net_expectancy_usd": 42.11,
-      "suggested_stop_pts": 21.01,
-      "suggested_stop_usd": 105.03,
-      "suggested_target_lo_pts": 13.28,
-      "suggested_target_hi_pts": 22.13,
+      "win_rate": 0.763,
+      "median_mfe_pts": 22.02,
+      "median_mfe_usd": 110.11,
+      "median_mae_pts": 13.93,
+      "median_mae_usd": 69.67,
+      "net_expectancy_usd": 42.01,
+      "suggested_stop_pts": 20.9,
+      "suggested_stop_usd": 104.51,
+      "suggested_target_lo_pts": 13.21,
+      "suggested_target_hi_pts": 22.02,
       "wf_stability": 1.0,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 45.3076,
+      "composite_score": 49.6255,
       "neighbor_robust": true
     },
     {
@@ -105,138 +198,27 @@
           "value": "strong_pos"
         }
       ],
-      "support": 2397,
-      "distinct_days": 7,
-      "win_rate": 0.5845,
-      "median_mfe_pts": 21.62,
-      "median_mfe_usd": 108.11,
-      "median_mae_pts": 13.24,
-      "median_mae_usd": 66.22,
-      "net_expectancy_usd": 22.17,
-      "suggested_stop_pts": 19.87,
-      "suggested_stop_usd": 99.33,
-      "suggested_target_lo_pts": 12.97,
-      "suggested_target_hi_pts": 21.62,
+      "support": 2489,
+      "distinct_days": 8,
+      "win_rate": 0.5986,
+      "median_mfe_pts": 21.47,
+      "median_mfe_usd": 107.33,
+      "median_mae_pts": 13.67,
+      "median_mae_usd": 68.33,
+      "net_expectancy_usd": 25.62,
+      "suggested_stop_pts": 20.5,
+      "suggested_stop_usd": 102.49,
+      "suggested_target_lo_pts": 12.88,
+      "suggested_target_hi_pts": 21.47,
       "wf_stability": 1.0,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 37.2065,
+      "composite_score": 43.1137,
       "neighbor_robust": true
     },
     {
-      "name": "I_tick_q5_Q0_qqq_atm_avg_iv_gt_LONG_60m",
-      "direction": "LONG",
-      "horizon_min": 60,
-      "conditions_english": [
-        "tick_q5 = 0",
-        "qqq_atm_avg_iv > 0.3199"
-      ],
-      "conditions": [
-        {
-          "feature": "tick_q5",
-          "op": "eq",
-          "value": 0
-        },
-        {
-          "feature": "qqq_atm_avg_iv",
-          "op": "gt",
-          "value": 0.31989999999999996
-        }
-      ],
-      "support": 3802,
-      "distinct_days": 7,
-      "win_rate": 0.4808,
-      "median_mfe_pts": 20.03,
-      "median_mfe_usd": 100.15,
-      "median_mae_pts": 10.03,
-      "median_mae_usd": 50.17,
-      "net_expectancy_usd": -5.85,
-      "suggested_stop_pts": 15.05,
-      "suggested_stop_usd": 75.25,
-      "suggested_target_lo_pts": 12.02,
-      "suggested_target_hi_pts": 20.03,
-      "wf_stability": 1.0,
-      "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 36.0533,
-      "neighbor_robust": true
-    },
-    {
-      "name": "I_atm_avg_iv_q5_Q0_structural_gate_q5_Q0_SHORT_60m",
-      "direction": "SHORT",
-      "horizon_min": 60,
-      "conditions_english": [
-        "atm_avg_iv_q5 = 0",
-        "structural_gate_q5 = 0"
-      ],
-      "conditions": [
-        {
-          "feature": "atm_avg_iv_q5",
-          "op": "eq",
-          "value": 0
-        },
-        {
-          "feature": "structural_gate_q5",
-          "op": "eq",
-          "value": 0
-        }
-      ],
-      "support": 1890,
-      "distinct_days": 7,
-      "win_rate": 0.755,
-      "median_mfe_pts": 15.96,
-      "median_mfe_usd": 79.78,
-      "median_mae_pts": 15.91,
-      "median_mae_usd": 79.54,
-      "net_expectancy_usd": 38.76,
-      "suggested_stop_pts": 23.86,
-      "suggested_stop_usd": 119.3,
-      "suggested_target_lo_pts": 9.57,
-      "suggested_target_hi_pts": 15.96,
-      "wf_stability": 1.0,
-      "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 33.1381,
-      "neighbor_robust": true
-    },
-    {
-      "name": "I_atm_avg_iv_q5_Q0_pct_of_day_lt_SHORT_30m",
-      "direction": "SHORT",
-      "horizon_min": 30,
-      "conditions_english": [
-        "atm_avg_iv_q5 = 0",
-        "pct_of_day < 0.3803"
-      ],
-      "conditions": [
-        {
-          "feature": "atm_avg_iv_q5",
-          "op": "eq",
-          "value": 0
-        },
-        {
-          "feature": "pct_of_day",
-          "op": "lt",
-          "value": 0.3803418803418804
-        }
-      ],
-      "support": 4217,
-      "distinct_days": 7,
-      "win_rate": 0.7463,
-      "median_mfe_pts": 14.03,
-      "median_mfe_usd": 70.14,
-      "median_mae_pts": 6.97,
-      "median_mae_usd": 34.85,
-      "net_expectancy_usd": 36.12,
-      "suggested_stop_pts": 10.45,
-      "suggested_stop_usd": 52.27,
-      "suggested_target_lo_pts": 8.42,
-      "suggested_target_hi_pts": 14.03,
-      "wf_stability": 1.0,
-      "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 31.7914,
-      "neighbor_robust": true
-    },
-    {
-      "name": "SKIP_midday_chop_30m",
+      "name": "SKIP_midday_chop_15m",
       "direction": "SKIP",
-      "horizon_min": 30,
+      "horizon_min": 15,
       "conditions_english": [
         "0.25 <= pct_of_day <= 0.55",
         "efficiency_ratio < 0.25"
@@ -254,8 +236,8 @@
           "value": 0.25
         }
       ],
-      "support": 4348,
-      "distinct_days": 8,
+      "support": 4911,
+      "distinct_days": 9,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -268,7 +250,7 @@
       "suggested_target_hi_pts": 0.0,
       "wf_stability": 1.0,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 20.422,
+      "composite_score": 19.6241,
       "neighbor_robust": true
     },
     {
@@ -285,8 +267,8 @@
           "value": 0.2
         }
       ],
-      "support": 563,
-      "distinct_days": 8,
+      "support": 603,
+      "distinct_days": 9,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -297,9 +279,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.75,
+      "wf_stability": 0.6,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 15.2418,
+      "composite_score": 14.2544,
       "neighbor_robust": true
     },
     {
@@ -316,8 +298,8 @@
           "value": 0.15
         }
       ],
-      "support": 9450,
-      "distinct_days": 8,
+      "support": 10492,
+      "distinct_days": 9,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -328,9 +310,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.5,
+      "wf_stability": 0.6,
       "confidence": "PRELIMINARY (insufficient days)",
-      "composite_score": 11.1889,
+      "composite_score": 12.4572,
       "neighbor_robust": true
     }
   ]

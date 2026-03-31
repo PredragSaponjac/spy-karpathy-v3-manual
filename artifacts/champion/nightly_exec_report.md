@@ -1,6 +1,6 @@
 # Karpathy Nightly Execution Report
-**Generated:** 2026-03-27 20:20:44  
-**Elapsed:** 2772.6s  
+**Generated:** 2026-03-27 21:17:15  
+**Elapsed:** 18446.8s  
 **Maturity:** PRELIMINARY — 2-fold walk-forward validated (8 days)  
 
 ## Challenger Summary
@@ -32,7 +32,7 @@
 - Total divergence columns: **127**
 
 ## LLM Spend
-- Total: **$1.5816**
+- Total: **$1.6079**
 - Proposer calls: 5
 - Critic calls: 5
-- Remaining: $28.42 of $30.00 hard cap
+- Remaining: $28.39 of $30.00 hard cap

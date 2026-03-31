@@ -1,0 +1,242 @@
+{
+  "timestamp": "2026-03-31T06:53:13.283915",
+  "data_hash": "8408592db33af26a",
+  "hypothesis_hash": "69ab70c04abc0d50",
+  "knob_changed": {
+    "move_size_preference": {
+      "old": 1.4,
+      "new": 1.8
+    }
+  },
+  "champion_metrics": {
+    "mean_net_expectancy_usd": 66.74,
+    "sum_composite": 402.1641,
+    "mean_composite": 44.6849,
+    "mean_wf_stability": 0.8667,
+    "worst_day_concentration": 0.3425,
+    "day_concentration_fails": 0,
+    "worst_regime_concentration": 1.0,
+    "regime_concentration_fails": 9,
+    "total_rules": 9,
+    "n_entry": 6,
+    "n_skip": 3,
+    "n_families": 4,
+    "families": [
+      "divergence",
+      "interaction",
+      "level",
+      "skip"
+    ],
+    "mean_skip_quality": 0.0808
+  },
+  "challenger_metrics": {
+    "mean_net_expectancy_usd": 66.74,
+    "sum_composite": 429.3588,
+    "mean_composite": 47.7065,
+    "mean_wf_stability": 0.8667,
+    "worst_day_concentration": 0.3425,
+    "day_concentration_fails": 0,
+    "worst_regime_concentration": 1.0,
+    "regime_concentration_fails": 9,
+    "total_rules": 9,
+    "n_entry": 6,
+    "n_skip": 3,
+    "n_families": 4,
+    "families": [
+      "divergence",
+      "interaction",
+      "level",
+      "skip"
+    ],
+    "mean_skip_quality": 0.0808
+  },
+  "judge_verdict": {
+    "timestamp": "2026-03-31T06:53:13.102141",
+    "patch_summary": "Increase move_size_preference from 1.4 to 1.8 to push candidate scoring toward larger tradable moves, addressing regime concentration and the all-SHORT direction imbalance by favoring higher-conviction setups",
+    "champion": {
+      "mean_net_expectancy_usd": 66.74,
+      "sum_composite": 402.1641,
+      "mean_composite": 44.6849,
+      "mean_wf_stability": 0.8667,
+      "worst_day_concentration": 0.3425,
+      "day_concentration_fails": 0,
+      "worst_regime_concentration": 1.0,
+      "regime_concentration_fails": 9,
+      "total_rules": 9,
+      "n_entry": 6,
+      "n_skip": 3,
+      "n_families": 4,
+      "families": [
+        "divergence",
+        "interaction",
+        "level",
+        "skip"
+      ],
+      "mean_skip_quality": 0.0808
+    },
+    "challenger": {
+      "mean_net_expectancy_usd": 66.74,
+      "sum_composite": 429.3588,
+      "mean_composite": 47.7065,
+      "mean_wf_stability": 0.8667,
+      "worst_day_concentration": 0.3425,
+      "day_concentration_fails": 0,
+      "worst_regime_concentration": 1.0,
+      "regime_concentration_fails": 9,
+      "total_rules": 9,
+      "n_entry": 6,
+      "n_skip": 3,
+      "n_families": 4,
+      "families": [
+        "divergence",
+        "interaction",
+        "level",
+        "skip"
+      ],
+      "mean_skip_quality": 0.0808
+    },
+    "checks": {
+      "composite_improvement_pct": 0.0676,
+      "composite_pass": true,
+      "stability_delta": 0.0,
+      "stability_pass": true,
+      "day_concentration_delta": 0.0,
+      "day_concentration_pass": true,
+      "day_concentration_fails_pass": true,
+      "rule_count_delta": 0,
+      "rule_count_pass": true,
+      "skip_quality_delta": 0.0,
+      "skip_quality_pass": true,
+      "net_expectancy_delta": 0.0,
+      "net_expectancy_pass": true,
+      "lateral_rule_count_drop": 0,
+      "lateral_day_conc_improvement": 0.0,
+      "lateral_eligible": false
+    },
+    "accepted": true,
+    "reason": "Challenger improves composite by 6.8% with net expectancy delta $+0.00, stability delta +0.0000. All guardrails passed.",
+    "verdict": "PROMOTE"
+  },
+  "hypothesis_snapshot": {
+    "rule_families": {
+      "level": true,
+      "interaction": true,
+      "divergence": true,
+      "sequence": true,
+      "skip": true,
+      "confluence": false
+    },
+    "feature_family_weights": {
+      "tape": 1.0,
+      "dealer": 1.0,
+      "flow": 1.0,
+      "skew": 1.0,
+      "structure": 1.0,
+      "expanded": 1.0,
+      "0dte": 1.0,
+      "fluxgate": 1.0,
+      "micro": 1.0,
+      "internals": 1.0,
+      "signals": 1.0,
+      "context": 1.0
+    },
+    "divergence_family_weights": {
+      "relative_strength": 1.0,
+      "z_score_div": 1.0,
+      "non_confirmation": 1.0,
+      "recoupling": 1.0,
+      "lead_lag": 1.0,
+      "composite": 1.0
+    },
+    "sequence_family_weights": {
+      "compression_expansion": 1.0,
+      "divergence_chains": 1.0,
+      "momentum_flips": 1.0,
+      "qqq_lead_confirm": 1.0,
+      "acceleration": 1.0
+    },
+    "thresholds": {
+      "min_support": 20,
+      "max_overlap": 0.6,
+      "neighbor_band_pct": 0.1,
+      "min_composite_score": 0.0
+    },
+    "skip_aggressiveness": 1.0,
+    "intermarket_weight": 1.4,
+    "move_size_preference": 1.8
+  },
+  "accepted_rules_summary": [
+    {
+      "name": "L_otm_put_pct_low_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "level",
+      "composite_score": 104.8616,
+      "mes_net_expectancy_usd": 160.26,
+      "wf_stability": 0.6
+    },
+    {
+      "name": "D_zdiv_nope_high_SHORT_30m",
+      "direction": "SHORT",
+      "source_family": "divergence",
+      "composite_score": 80.367,
+      "mes_net_expectancy_usd": 46.66,
+      "wf_stability": 1.0
+    },
+    {
+      "name": "D_zdiv_net_prem_high_SHORT_15m",
+      "direction": "SHORT",
+      "source_family": "divergence",
+      "composite_score": 53.2248,
+      "mes_net_expectancy_usd": 61.83,
+      "wf_stability": 1.0
+    },
+    {
+      "name": "I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "interaction",
+      "composite_score": 51.8305,
+      "mes_net_expectancy_usd": 64.06,
+      "wf_stability": 1.0
+    },
+    {
+      "name": "I_atm_avg_iv_q5_Q0_spot_vs_poc_gt_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "interaction",
+      "composite_score": 49.6255,
+      "mes_net_expectancy_usd": 42.01,
+      "wf_stability": 1.0
+    },
+    {
+      "name": "D_zdiv_gex_normalized_high_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "divergence",
+      "composite_score": 43.1137,
+      "mes_net_expectancy_usd": 25.62,
+      "wf_stability": 1.0
+    },
+    {
+      "name": "SKIP_midday_chop_15m",
+      "direction": "SKIP",
+      "source_family": "skip",
+      "composite_score": 19.6241,
+      "mes_net_expectancy_usd": 0.0,
+      "wf_stability": 1.0
+    },
+    {
+      "name": "SKIP_weak_gate_30m",
+      "direction": "SKIP",
+      "source_family": "skip",
+      "composite_score": 14.2544,
+      "mes_net_expectancy_usd": 0.0,
+      "wf_stability": 0.6
+    },
+    {
+      "name": "SKIP_low_efficiency_15m",
+      "direction": "SKIP",
+      "source_family": "skip",
+      "composite_score": 12.4572,
+      "mes_net_expectancy_usd": 0.0,
+      "wf_stability": 0.6
+    }
+  ]
+}
