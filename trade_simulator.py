@@ -1,13 +1,19 @@
 """
 Karpathy Autoresearch — Read-Only Trade Simulator
 ==================================================
-Walks through each tick in spy_autoresearch.db, applies the accepted rules,
-and tracks simulated /MES trades with no overlapping positions.
+Walks through each tick in spy_autoresearch.db (or a CSV export),
+applies the accepted rules, and tracks simulated /MES trades with
+no overlapping positions.
 
 Usage:
-    PYTHONIOENCODING=utf-8 /c/Users/18329/anaconda3/python.exe trade_simulator.py
+    # From SQLite database:
+    PYTHONIOENCODING=utf-8 python trade_simulator.py --db spy_autoresearch.db
+
+    # From CSV export:
+    PYTHONIOENCODING=utf-8 python trade_simulator.py --csv spy_autoresearch_full_export.csv
 """
 
+import argparse
 import json
 import sqlite3
 import sys
@@ -18,8 +24,15 @@ import numpy as np
 import pandas as pd
 
 # ─── Config ──────────────────────────────────────────────────────────────
-DB_PATH = Path(r"C:\Users\18329\Downloads\spy_autoresearch.db")
+DEFAULT_DB_PATH = Path(r"C:\Users\18329\Downloads\spy_autoresearch.db")
 RULES_PATH = Path(__file__).parent / "artifacts" / "accepted_rules.json"
+
+# ─── Disabled Rules (reversible — clear this list to re-enable) ──────────
+# Rules listed here are excluded from simulation at load time.
+# This does NOT modify accepted_rules.json or any Karpathy artifacts.
+DISABLED_RULES = [
+    "L_otm_put_pct_low_SHORT_60m",  # audit: -255.83 PnL, 38.5% WR, main loss driver
+]
 
 MES_POINT_VALUE = 5.00       # $5 per point on /MES
 ROUND_TRIP_COST = 2.50       # commissions
@@ -179,7 +192,135 @@ def _rule_rank_key(rule: dict):
 
 # ─── Simulator ────────────────────────────────────────────────────────────
 
+def _parse_args():
+    """Parse CLI arguments for data source selection."""
+    parser = argparse.ArgumentParser(
+        description="Karpathy Autoresearch Trade Simulator"
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--db", type=str, default=None,
+                       help="Path to SQLite database (spy_autoresearch.db)")
+    group.add_argument("--csv", type=str, default=None,
+                       help="Path to CSV export (spy_autoresearch_full_export.csv)")
+    return parser.parse_args()
+
+
+def _load_from_db(db_path: str) -> pd.DataFrame:
+    """Load snapshot data from SQLite database."""
+    path = Path(db_path)
+    if not path.exists():
+        print(f"  ERROR: DB file not found: {path}")
+        sys.exit(1)
+    print(f"\nLoading data from {path} ...")
+    conn = sqlite3.connect(str(path))
+    df = pd.read_sql("SELECT * FROM snapshots ORDER BY timestamp", conn)
+    conn.close()
+    return df
+
+
+def _load_from_csv(csv_path: str) -> pd.DataFrame:
+    """Load snapshot data from CSV export."""
+    path = Path(csv_path)
+    if not path.exists():
+        print(f"  ERROR: CSV file not found: {path}")
+        sys.exit(1)
+    print(f"\nLoading data from {path} ...")
+    df = pd.read_csv(str(path))
+    # Sort by timestamp to match DB ordering
+    if "timestamp" in df.columns:
+        df = df.sort_values("timestamp").reset_index(drop=True)
+    return df
+
+
+def _preflight_check(df: pd.DataFrame, rules: list) -> None:
+    """Validate that all columns required by rules (or their base columns)
+    exist in the DataFrame. Fails closed on missing base columns."""
+
+    # Columns that build_derived_features() will create
+    DERIVED_PREFIXES = ("_q5", "zdiv_")
+
+    # Collect all features referenced by rules
+    rule_feats = set()
+    for r in rules:
+        for p in r["predicates"]:
+            rule_feats.add(p["feature"])
+
+    # Split into base (must exist now) vs derived (will be created)
+    base_needed = set()
+    derived_needed = set()
+    for f in rule_feats:
+        if any(f.endswith(sfx) or f.startswith(pfx)
+               for sfx, pfx in [("_q5", "zdiv_"), ("_state", "zdiv_")]):
+            derived_needed.add(f)
+        else:
+            base_needed.add(f)
+
+    # Check base columns
+    existing = set(df.columns)
+    missing_base = base_needed - existing
+    if missing_base:
+        print(f"\n  FATAL: {len(missing_base)} base column(s) missing from data:")
+        for m in sorted(missing_base):
+            print(f"    - {m}")
+        print("\n  Cannot proceed. These columns are required by rules and are NOT")
+        print("  derivable by build_derived_features().")
+        sys.exit(1)
+
+    # Check that base columns needed for derived features exist
+    # _q5 columns need their base column (e.g. atm_avg_iv_q5 needs atm_avg_iv)
+    for feat in derived_needed:
+        if feat.endswith("_q5"):
+            base_col = feat.replace("_q5", "")
+            if base_col not in existing:
+                print(f"\n  FATAL: Base column '{base_col}' missing (needed to derive '{feat}')")
+                sys.exit(1)
+        elif feat.endswith("_state") and feat.startswith("zdiv_"):
+            # zdiv_nope_state → needs zdiv_nope → needs (nope, qqq_nope)
+            # Map from zdiv state column back to the exact raw base pair
+            ZDIV_BASE_MAP = {
+                "zdiv_nope":            ("nope",           "qqq_nope"),
+                "zdiv_net_prem":        ("net_prem",       "qqq_net_prem"),
+                "zdiv_net_delta_flow":  ("net_delta_flow", "qqq_net_delta_flow"),
+                "zdiv_gex":             ("gex_total",      "qqq_gex_total"),
+                "zdiv_atm_iv":          ("atm_avg_iv",     "qqq_atm_avg_iv"),
+                "zdiv_gex_normalized":  ("gex_normalized", "qqq_gex_normalized"),
+                "zdiv_pin_score":       ("pin_score",      "qqq_pin_score"),
+                "zdiv_skew_25d":        ("skew_25d",       "qqq_skew_25d"),
+                "zdiv_skew_10d":        ("skew_10d",       "qqq_skew_10d"),
+                "zdiv_iv_slope":        ("iv_slope",       "qqq_iv_slope"),
+                "zdiv_iv_curvature":    ("iv_curvature",   "qqq_iv_curvature"),
+                "zdiv_straddle_pct":    ("atm_straddle",   "qqq_atm_straddle"),
+                "zdiv_dex":             ("dex",            "qqq_dex"),
+                "zdiv_vex":             ("vex",            "qqq_vex"),
+                "zdiv_cex":             ("cex",            "qqq_cex"),
+                "zdiv_pcr_vol":         ("pcr_vol",        "qqq_pcr_vol"),
+                "zdiv_awks":            ("awks",           "qqq_awks"),
+            }
+            # Strip _state to get the zdiv column name
+            zdiv_col = feat.replace("_state", "")
+            pair = ZDIV_BASE_MAP.get(zdiv_col)
+            if pair is None:
+                print(f"\n  FATAL: Unknown zdiv mapping for '{feat}' (zdiv_col='{zdiv_col}')")
+                sys.exit(1)
+            spy_col, qqq_col = pair
+            missing_pair = []
+            if spy_col not in existing:
+                missing_pair.append(spy_col)
+            if qqq_col not in existing:
+                missing_pair.append(qqq_col)
+            if missing_pair:
+                print(f"\n  FATAL: Raw column(s) missing for rule feature '{feat}':")
+                for m in missing_pair:
+                    print(f"    - {m}")
+                print(f"  Derivation chain: {feat} → {zdiv_col} → ({spy_col}, {qqq_col})")
+                sys.exit(1)
+
+    print("  Preflight check passed — all required base columns present.")
+
+
 def run_simulation():
+    args = _parse_args()
+
     print("=" * 72)
     print("  KARPATHY AUTORESEARCH — TRADE SIMULATOR")
     print("=" * 72)
@@ -188,23 +329,36 @@ def run_simulation():
     with open(RULES_PATH) as f:
         rules = json.load(f)
 
+    # Apply denylist (reversible — edit DISABLED_RULES to re-enable)
+    if DISABLED_RULES:
+        before = len(rules)
+        disabled = [r for r in rules if r["name"] in DISABLED_RULES]
+        rules = [r for r in rules if r["name"] not in DISABLED_RULES]
+        for d in disabled:
+            print(f"  DISABLED: {d['name']} (removed from simulation)")
+        print(f"  {before} loaded, {len(disabled)} disabled, {len(rules)} active")
+
     trade_rules = [r for r in rules if r["direction"] != "SKIP"]
     skip_rules  = [r for r in rules if r["direction"] == "SKIP"]
 
-    print(f"\nLoaded {len(rules)} rules: {len(trade_rules)} trade, {len(skip_rules)} skip")
+    print(f"\nActive rules: {len(rules)} ({len(trade_rules)} trade, {len(skip_rules)} skip)")
     for r in rules:
         print(f"  {r['direction']:5s} {r['horizon_min']:3d}m  {r['name']}")
 
     # Load data
-    print(f"\nLoading data from {DB_PATH} ...")
-    conn = sqlite3.connect(str(DB_PATH))
-    df = pd.read_sql("SELECT * FROM snapshots ORDER BY timestamp", conn)
-    conn.close()
+    if args.db:
+        df = _load_from_db(args.db)
+    else:
+        df = _load_from_csv(args.csv)
     print(f"  {len(df):,} rows, {df.shape[1]} columns")
 
     # Parse timestamps
     df["timestamp"] = pd.to_datetime(df["timestamp"], format="ISO8601")
     df["date"] = df["timestamp"].dt.date
+
+    # Preflight validation
+    print("\nRunning preflight column check ...")
+    _preflight_check(df, rules)
 
     dates = sorted(df["date"].unique())
     print(f"  {len(dates)} trading days: {dates[0]} to {dates[-1]}")

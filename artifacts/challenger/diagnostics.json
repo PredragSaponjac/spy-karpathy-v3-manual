@@ -1,11 +1,11 @@
 {
-  "run_timestamp": "2026-03-31 10:21:51",
-  "elapsed_seconds": 17416.7,
+  "run_timestamp": "2026-03-31 17:37:31",
+  "elapsed_seconds": 5160.8,
   "db_path": "C:\\Users\\18329\\Downloads\\spy_autoresearch.db",
-  "total_snapshots": 39952,
+  "total_snapshots": 41809,
   "distinct_days": 10,
-  "labeled_rows": 37525,
-  "total_features": 780,
+  "labeled_rows": 40292,
+  "total_features": 782,
   "feature_columns": [
     "spot",
     "spot_bid",
@@ -340,6 +340,7 @@
     "div_pin_score",
     "div_straddle_pct",
     "div_gex_normalized",
+    "div_gamma_regime",
     "sig_trend_long",
     "sig_trend_short",
     "sig_strength",
@@ -511,6 +512,7 @@
     "div_pin_score_z",
     "div_straddle_pct_z",
     "div_gex_normalized_z",
+    "div_gamma_regime_z",
     "gex_total_pct",
     "nope_pct",
     "net_prem_pct",
@@ -919,8 +921,8 @@
   ],
   "candidates_generated": 6297,
   "rules_promoted": 9,
-  "mes_reference_price": 6411.2,
-  "mes_reference_source": "live SPY spot 641.12 x10",
+  "mes_reference_price": 6502.1,
+  "mes_reference_source": "live SPY spot 650.21 x10",
   "maturity_mode": "live",
   "maturity_label": "LIVE \u2014 walk-forward validated"
 }
