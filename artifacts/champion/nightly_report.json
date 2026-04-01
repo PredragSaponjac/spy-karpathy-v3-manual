@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-31 19:52",
+  "generated": "2026-04-01 02:50",
   "instrument": "/MES x1",
   "data": {
     "snapshots": 41809,
@@ -45,69 +45,7 @@
       "suggested_target_hi_pts": 23.73,
       "wf_stability": 1.0,
       "confidence": "HIGH",
-      "composite_score": 77.9824,
-      "neighbor_robust": true
-    },
-    {
-      "name": "L_otm_put_pct_low_SHORT_60m",
-      "direction": "SHORT",
-      "horizon_min": 60,
-      "conditions_english": [
-        "otm_put_pct < 0.2"
-      ],
-      "conditions": [
-        {
-          "feature": "otm_put_pct",
-          "op": "lt",
-          "value": 0.2
-        }
-      ],
-      "support": 75,
-      "distinct_days": 8,
-      "win_rate": 0.7867,
-      "median_mfe_pts": 5.27,
-      "median_mfe_usd": 26.33,
-      "median_mae_pts": 43.25,
-      "median_mae_usd": 216.25,
-      "net_expectancy_usd": 158.28,
-      "suggested_stop_pts": 64.88,
-      "suggested_stop_usd": 324.38,
-      "suggested_target_lo_pts": 3.16,
-      "suggested_target_hi_pts": 5.27,
-      "wf_stability": 0.6667,
-      "confidence": "MODERATE",
-      "composite_score": 63.3111,
-      "neighbor_robust": true
-    },
-    {
-      "name": "D_zdiv_net_prem_high_SHORT_15m",
-      "direction": "SHORT",
-      "horizon_min": 15,
-      "conditions_english": [
-        "zdiv_net_prem_state = strong_pos"
-      ],
-      "conditions": [
-        {
-          "feature": "zdiv_net_prem_state",
-          "op": "eq",
-          "value": "strong_pos"
-        }
-      ],
-      "support": 149,
-      "distinct_days": 9,
-      "win_rate": 0.6309,
-      "median_mfe_pts": 12.19,
-      "median_mfe_usd": 60.93,
-      "median_mae_pts": 6.68,
-      "median_mae_usd": 33.41,
-      "net_expectancy_usd": 64.95,
-      "suggested_stop_pts": 10.02,
-      "suggested_stop_usd": 50.12,
-      "suggested_target_lo_pts": 7.31,
-      "suggested_target_hi_pts": 12.19,
-      "wf_stability": 1.0,
-      "confidence": "HIGH",
-      "composite_score": 56.2344,
+      "composite_score": 76.8491,
       "neighbor_robust": true
     },
     {
@@ -145,6 +83,37 @@
       "wf_stability": 1.0,
       "confidence": "HIGH",
       "composite_score": 55.8887,
+      "neighbor_robust": true
+    },
+    {
+      "name": "D_zdiv_net_prem_high_SHORT_15m",
+      "direction": "SHORT",
+      "horizon_min": 15,
+      "conditions_english": [
+        "zdiv_net_prem_state = strong_pos"
+      ],
+      "conditions": [
+        {
+          "feature": "zdiv_net_prem_state",
+          "op": "eq",
+          "value": "strong_pos"
+        }
+      ],
+      "support": 149,
+      "distinct_days": 9,
+      "win_rate": 0.6309,
+      "median_mfe_pts": 12.19,
+      "median_mfe_usd": 60.93,
+      "median_mae_pts": 6.68,
+      "median_mae_usd": 33.41,
+      "net_expectancy_usd": 64.95,
+      "suggested_stop_pts": 10.02,
+      "suggested_stop_usd": 50.12,
+      "suggested_target_lo_pts": 7.31,
+      "suggested_target_hi_pts": 12.19,
+      "wf_stability": 1.0,
+      "confidence": "HIGH",
+      "composite_score": 55.2278,
       "neighbor_robust": true
     },
     {
@@ -213,6 +182,37 @@
       "wf_stability": 1.0,
       "confidence": "HIGH",
       "composite_score": 50.7832,
+      "neighbor_robust": true
+    },
+    {
+      "name": "L_otm_put_pct_low_LONG_30m",
+      "direction": "LONG",
+      "horizon_min": 30,
+      "conditions_english": [
+        "otm_put_pct < 0.2"
+      ],
+      "conditions": [
+        {
+          "feature": "otm_put_pct",
+          "op": "lt",
+          "value": 0.2
+        }
+      ],
+      "support": 190,
+      "distinct_days": 8,
+      "win_rate": 0.6737,
+      "median_mfe_pts": 42.84,
+      "median_mfe_usd": 214.18,
+      "median_mae_pts": 5.27,
+      "median_mae_usd": 26.33,
+      "net_expectancy_usd": -8.28,
+      "suggested_stop_pts": 7.9,
+      "suggested_stop_usd": 39.49,
+      "suggested_target_lo_pts": 25.7,
+      "suggested_target_hi_pts": 42.84,
+      "wf_stability": 0.5,
+      "confidence": "LOW",
+      "composite_score": 44.7239,
       "neighbor_robust": true
     },
     {

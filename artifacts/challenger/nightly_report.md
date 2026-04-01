@@ -1,5 +1,5 @@
 # Karpathy Autoresearch — Nightly Report
-**Generated:** 2026-03-31 19:03
+**Generated:** 2026-04-01 06:22
 **Trading instrument:** 1 /MES contract
 **Maturity tier:** LIVE — walk-forward validated
 
@@ -18,7 +18,27 @@
 - Slippage: 2 ticks RT = $2.50
 - All dollar figures are **estimated** based on these assumptions.
 
-## SHORT Patterns (6)
+## LONG Patterns (1)
+
+### L_otm_put_pct_low_LONG_30m
+**Direction:** LONG | **Horizon:** 30m | **Confidence:** LOW
+
+**Conditions:**
+- otm_put_pct < 0.2
+
+| Metric | Value |
+|--------|-------|
+| Sample size | 190 snapshots across 8 day(s) |
+| Win rate | 67.4% |
+| Historically median favorable move | 42.8 pts ($214) |
+| Typical adverse excursion | 5.3 pts ($26) |
+| Estimated net expectancy (1 /MES) | **$-8.28** per trade |
+| Walk-forward stability | 50% (3/6 folds) |
+
+**Suggested stop:** 7.9 pts (32 ticks, $39)
+**Suggested target range:** 25.7–42.8 pts ($129–$214)
+
+## SHORT Patterns (5)
 
 ### D_zdiv_nope_high_SHORT_30m
 **Direction:** SHORT | **Horizon:** 30m | **Confidence:** HIGH
@@ -38,42 +58,6 @@
 **Suggested stop:** 5.9 pts (24 ticks, $30)
 **Suggested target range:** 14.2–23.7 pts ($71–$119)
 
-### L_otm_put_pct_low_SHORT_60m
-**Direction:** SHORT | **Horizon:** 60m | **Confidence:** MODERATE
-
-**Conditions:**
-- otm_put_pct < 0.2
-
-| Metric | Value |
-|--------|-------|
-| Sample size | 75 snapshots across 8 day(s) |
-| Win rate | 78.7% |
-| Historically median favorable move | 5.3 pts ($26) |
-| Typical adverse excursion | 43.3 pts ($216) |
-| Estimated net expectancy (1 /MES) | **$158.28** per trade |
-| Walk-forward stability | 67% (4/6 folds) |
-
-**Suggested stop:** 64.9 pts (260 ticks, $324)
-**Suggested target range:** 3.2–5.3 pts ($16–$26)
-
-### D_zdiv_net_prem_high_SHORT_15m
-**Direction:** SHORT | **Horizon:** 15m | **Confidence:** HIGH
-
-**Conditions:**
-- zdiv_net_prem_state = strong_pos
-
-| Metric | Value |
-|--------|-------|
-| Sample size | 149 snapshots across 9 day(s) |
-| Win rate | 63.1% |
-| Historically median favorable move | 12.2 pts ($61) |
-| Typical adverse excursion | 6.7 pts ($33) |
-| Estimated net expectancy (1 /MES) | **$64.95** per trade |
-| Walk-forward stability | 100% (6/6 folds) |
-
-**Suggested stop:** 10.0 pts (40 ticks, $50)
-**Suggested target range:** 7.3–12.2 pts ($37–$61)
-
 ### I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m
 **Direction:** SHORT | **Horizon:** 60m | **Confidence:** HIGH
 
@@ -92,6 +76,24 @@
 
 **Suggested stop:** 14.8 pts (59 ticks, $74)
 **Suggested target range:** 12.2–20.4 pts ($61–$102)
+
+### D_zdiv_net_prem_high_SHORT_15m
+**Direction:** SHORT | **Horizon:** 15m | **Confidence:** HIGH
+
+**Conditions:**
+- zdiv_net_prem_state = strong_pos
+
+| Metric | Value |
+|--------|-------|
+| Sample size | 149 snapshots across 9 day(s) |
+| Win rate | 63.1% |
+| Historically median favorable move | 12.2 pts ($61) |
+| Typical adverse excursion | 6.7 pts ($33) |
+| Estimated net expectancy (1 /MES) | **$64.95** per trade |
+| Walk-forward stability | 100% (6/6 folds) |
+
+**Suggested stop:** 10.0 pts (40 ticks, $50)
+**Suggested target range:** 7.3–12.2 pts ($37–$61)
 
 ### I_atm_avg_iv_q5_Q0_spot_vs_poc_gt_SHORT_60m
 **Direction:** SHORT | **Horizon:** 60m | **Confidence:** HIGH

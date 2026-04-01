@@ -6,11 +6,15 @@ applies the accepted rules, and tracks simulated /MES trades with
 no overlapping positions.
 
 Usage:
-    # From SQLite database:
-    PYTHONIOENCODING=utf-8 python trade_simulator.py --db spy_autoresearch.db
+    # Explicit rulebook path:
+    python trade_simulator.py --db spy_autoresearch.db --rules-path artifacts/champion/accepted_rules.json
 
-    # From CSV export:
-    PYTHONIOENCODING=utf-8 python trade_simulator.py --csv spy_autoresearch_full_export.csv
+    # Shorthand: champion or challenger
+    python trade_simulator.py --db spy_autoresearch.db --champion
+    python trade_simulator.py --db spy_autoresearch.db --challenger
+
+    # CSV data source:
+    python trade_simulator.py --csv export.csv --champion
 """
 
 import argparse
@@ -25,13 +29,16 @@ import pandas as pd
 
 # ─── Config ──────────────────────────────────────────────────────────────
 DEFAULT_DB_PATH = Path(r"C:\Users\18329\Downloads\spy_autoresearch.db")
-RULES_PATH = Path(__file__).parent / "artifacts" / "accepted_rules.json"
+ARTIFACTS_DIR = Path(__file__).parent / "artifacts"
+CHAMPION_RULES  = ARTIFACTS_DIR / "champion"  / "accepted_rules.json"
+CHALLENGER_RULES = ARTIFACTS_DIR / "challenger" / "accepted_rules.json"
 
 # ─── Disabled Rules (reversible — clear this list to re-enable) ──────────
 # Rules listed here are excluded from simulation at load time.
 # This does NOT modify accepted_rules.json or any Karpathy artifacts.
 DISABLED_RULES = [
-    "L_otm_put_pct_low_SHORT_60m",  # audit: -255.83 PnL, 38.5% WR, main loss driver
+    "L_otm_put_pct_low_SHORT_60m",       # audit: -255.83 PnL, 38.5% WR, main loss driver
+    "D_zdiv_pin_score_low_SHORT_60m",     # audit: -126.78 PnL, 27.3% WR, overlap conflict loser
 ]
 
 MES_POINT_VALUE = 5.00       # $5 per point on /MES
@@ -193,15 +200,26 @@ def _rule_rank_key(rule: dict):
 # ─── Simulator ────────────────────────────────────────────────────────────
 
 def _parse_args():
-    """Parse CLI arguments for data source selection."""
+    """Parse CLI arguments for data source and rulebook selection."""
     parser = argparse.ArgumentParser(
         description="Karpathy Autoresearch Trade Simulator"
     )
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--db", type=str, default=None,
-                       help="Path to SQLite database (spy_autoresearch.db)")
-    group.add_argument("--csv", type=str, default=None,
-                       help="Path to CSV export (spy_autoresearch_full_export.csv)")
+    # Data source (required — pick one)
+    data_group = parser.add_mutually_exclusive_group(required=True)
+    data_group.add_argument("--db", type=str, default=None,
+                            help="Path to SQLite database (spy_autoresearch.db)")
+    data_group.add_argument("--csv", type=str, default=None,
+                            help="Path to CSV export")
+
+    # Rulebook source (required — pick one)
+    rules_group = parser.add_mutually_exclusive_group(required=True)
+    rules_group.add_argument("--champion", action="store_true",
+                             help="Use champion rulebook (artifacts/champion/accepted_rules.json)")
+    rules_group.add_argument("--challenger", action="store_true",
+                             help="Use challenger rulebook (artifacts/challenger/accepted_rules.json)")
+    rules_group.add_argument("--rules-path", type=str, default=None,
+                             help="Explicit path to accepted_rules.json")
+
     return parser.parse_args()
 
 
@@ -325,8 +343,26 @@ def run_simulation():
     print("  KARPATHY AUTORESEARCH — TRADE SIMULATOR")
     print("=" * 72)
 
+    # Resolve rulebook path
+    if args.champion:
+        rules_path = CHAMPION_RULES
+        rulebook_label = "CHAMPION"
+    elif args.challenger:
+        rules_path = CHALLENGER_RULES
+        rulebook_label = "CHALLENGER"
+    else:
+        rules_path = Path(args.rules_path)
+        rulebook_label = str(rules_path)
+
+    if not rules_path.exists():
+        print(f"  FATAL: Rulebook not found: {rules_path}")
+        sys.exit(1)
+
+    print(f"\n  Rulebook: {rulebook_label}")
+    print(f"  Path:     {rules_path}")
+
     # Load rules
-    with open(RULES_PATH) as f:
+    with open(rules_path) as f:
         rules = json.load(f)
 
     # Apply denylist (reversible — edit DISABLED_RULES to re-enable)

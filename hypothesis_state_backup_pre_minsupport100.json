@@ -37,7 +37,7 @@
     "acceleration": 1.0
   },
   "thresholds": {
-    "min_support": 100,
+    "min_support": 20,
     "max_overlap": 0.6,
     "neighbor_band_pct": 0.1,
     "min_composite_score": 0.0
