@@ -1,29 +1,29 @@
 # Karpathy Nightly Execution Report
-**Generated:** 2026-04-01 19:25:00  
-**Elapsed:** 8217.1s  
-**Maturity:** LIVE — walk-forward validated (11 days)  
+**Generated:** 2026-04-02 15:06:00  
+**Elapsed:** 39815.8s  
+**Maturity:** LIVE — walk-forward validated (12 days)  
 
 ## Challenger Summary
-- Attempts: **0**
+- Attempts: **5**
 - Accepted: **0**
-- Rejected: **0**
+- Rejected: **5**
 
 ## Top LONG Rules
-- **L_otm_put_pct_low_LONG_30m** — $-8.31/MES, WF 0.50, composite 45.0401
+- **L_atm_straddle_pct_high_LONG_30m** — $90.79/MES, WF 0.57, composite 76.8976
 
 ## Top SHORT Rules
-- **D_zdiv_nope_high_SHORT_30m** — $55.39/MES, WF 1.00, composite 77.3327
-- **I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m** — $69.08/MES, WF 1.00, composite 56.3404
-- **D_zdiv_net_prem_high_SHORT_15m** — $65.49/MES, WF 1.00, composite 55.5995
+- **D_zdiv_nope_high_SHORT_60m** — $56.30/MES, WF 0.88, composite 93.3860
+- **I_iv_slope_q5_Q0_div_gex_lt_SHORT_30m** — $-13.01/MES, WF 0.25, composite 72.2013
+- **D_zdiv_net_prem_high_SHORT_60m** — $5.18/MES, WF 0.75, composite 61.5183
 
 ## Top SKIP Rules
-- **SKIP_midday_chop_15m** — composite 20.0118, support 5253
-- **SKIP_weak_gate_15m** — composite 16.0083, support 746
-- **SKIP_low_efficiency_15m** — composite 14.1317, support 11365
+- **SKIP_midday_chop_15m** — composite 19.0649, support 6160
+- **SKIP_weak_gate_15m** — composite 17.5472, support 831
+- **SKIP_low_efficiency_15m** — composite 13.3188, support 12795
 
 ## /MES Expectancy (1 contract)
-- Mean net expectancy: **$42.89**
-- Best: $69.08 / Worst: $-8.31
+- Mean net expectancy: **$44.75**
+- Best: $90.79 / Worst: $-13.01
 
 ## Divergence Family Contributions
 - **PRIMARY**: 5 base, 43 total columns (33.9%)
@@ -32,7 +32,7 @@
 - Total divergence columns: **127**
 
 ## LLM Spend
-- Total: **$0.0000**
-- Proposer calls: 0
-- Critic calls: 0
-- Remaining: $30.00 of $30.00 hard cap
+- Total: **$1.6316**
+- Proposer calls: 5
+- Critic calls: 5
+- Remaining: $28.37 of $30.00 hard cap

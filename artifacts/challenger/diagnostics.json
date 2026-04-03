@@ -1,10 +1,10 @@
 {
-  "run_timestamp": "2026-04-01 02:50:43",
-  "elapsed_seconds": 12676.4,
+  "run_timestamp": "2026-04-03 00:30:03",
+  "elapsed_seconds": 5973.1,
   "db_path": "C:\\Users\\18329\\Downloads\\spy_autoresearch.db",
-  "total_snapshots": 41809,
-  "distinct_days": 10,
-  "labeled_rows": 40292,
+  "total_snapshots": 47680,
+  "distinct_days": 12,
+  "labeled_rows": 45860,
   "total_features": 782,
   "feature_columns": [
     "spot",
@@ -921,8 +921,8 @@
   ],
   "candidates_generated": 6297,
   "rules_promoted": 9,
-  "mes_reference_price": 6502.1,
-  "mes_reference_source": "live SPY spot 650.21 x10",
+  "mes_reference_price": 6558.4,
+  "mes_reference_source": "live SPY spot 655.84 x10",
   "maturity_mode": "live",
   "maturity_label": "LIVE \u2014 walk-forward validated"
 }
