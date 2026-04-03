@@ -39,6 +39,7 @@ CHALLENGER_RULES = ARTIFACTS_DIR / "challenger" / "accepted_rules.json"
 DISABLED_RULES = [
     "L_otm_put_pct_low_SHORT_60m",       # audit: -255.83 PnL, 38.5% WR, main loss driver
     "D_zdiv_pin_score_low_SHORT_60m",     # audit: -126.78 PnL, 27.3% WR, overlap conflict loser
+    "I_iv_slope_q5_Q0_div_gex_lt_SHORT_30m",  # audit: -$13.01 expectancy, 25% WF, wins 30 conflicts it shouldn't
 ]
 
 MES_POINT_VALUE = 5.00       # $5 per point on /MES
@@ -508,7 +509,7 @@ def run_simulation():
                 if pd.isna(spot) or spot == 0:
                     continue
 
-                fwd_points = spot * (fwd_return_pct / 100.0)
+                fwd_points = spot * 10 * (fwd_return_pct / 100.0)  # spot is SPY, multiply by 10 for /MES points
 
                 if direction == "LONG":
                     gross_pnl = fwd_points * MES_POINT_VALUE
