@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-03 02:09:36",
+  "generated": "2026-04-07 03:44:45",
   "config": {
     "hard_budget_usd": 30.0,
     "soft_budget_usd": 24.0,
@@ -9,9 +9,9 @@
     "default_model": "claude-opus-4-6"
   },
   "spend": {
-    "total_usd": 1.63164,
-    "remaining_usd": 28.36836,
-    "pct_of_hard_cap": 5.44
+    "total_usd": 1.620375,
+    "remaining_usd": 28.379625,
+    "pct_of_hard_cap": 5.4
   },
   "calls": {
     "proposer": 5,
