@@ -42,7 +42,7 @@
     "neighbor_band_pct": 0.1,
     "min_composite_score": 0.0
   },
-  "skip_aggressiveness": 1.0,
+  "skip_aggressiveness": 1.5,
   "intermarket_weight": 1.4,
   "move_size_preference": 2.0
 }

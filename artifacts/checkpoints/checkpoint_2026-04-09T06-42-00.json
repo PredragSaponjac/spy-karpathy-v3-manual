@@ -1,0 +1,242 @@
+{
+  "timestamp": "2026-04-09T06:42:00.781511",
+  "data_hash": "18671159721597b0",
+  "hypothesis_hash": "1bf59ea505b0c8c3",
+  "knob_changed": {
+    "skip_aggressiveness": {
+      "old": 1.0,
+      "new": 1.5
+    }
+  },
+  "champion_metrics": {
+    "mean_net_expectancy_usd": 40.4717,
+    "sum_composite": 415.2942,
+    "mean_composite": 46.1438,
+    "mean_wf_stability": 0.7159,
+    "worst_day_concentration": 0.3416,
+    "day_concentration_fails": 0,
+    "worst_regime_concentration": 0.9504,
+    "regime_concentration_fails": 7,
+    "total_rules": 9,
+    "n_entry": 6,
+    "n_skip": 3,
+    "n_families": 4,
+    "families": [
+      "divergence",
+      "interaction",
+      "level",
+      "skip"
+    ],
+    "mean_skip_quality": 0.0806
+  },
+  "challenger_metrics": {
+    "mean_net_expectancy_usd": 40.4717,
+    "sum_composite": 441.6798,
+    "mean_composite": 49.0755,
+    "mean_wf_stability": 0.7159,
+    "worst_day_concentration": 0.3416,
+    "day_concentration_fails": 0,
+    "worst_regime_concentration": 0.9504,
+    "regime_concentration_fails": 7,
+    "total_rules": 9,
+    "n_entry": 6,
+    "n_skip": 3,
+    "n_families": 4,
+    "families": [
+      "divergence",
+      "interaction",
+      "level",
+      "skip"
+    ],
+    "mean_skip_quality": 0.0806
+  },
+  "judge_verdict": {
+    "timestamp": "2026-04-09T06:42:00.718994",
+    "patch_summary": "Increase skip_aggressiveness from 1.0 to 1.5 to filter out more low-quality entry conditions, improving net expectancy by avoiding adverse regime snapshots that are causing regime concentration failure",
+    "champion": {
+      "mean_net_expectancy_usd": 40.4717,
+      "sum_composite": 415.2942,
+      "mean_composite": 46.1438,
+      "mean_wf_stability": 0.7159,
+      "worst_day_concentration": 0.3416,
+      "day_concentration_fails": 0,
+      "worst_regime_concentration": 0.9504,
+      "regime_concentration_fails": 7,
+      "total_rules": 9,
+      "n_entry": 6,
+      "n_skip": 3,
+      "n_families": 4,
+      "families": [
+        "divergence",
+        "interaction",
+        "level",
+        "skip"
+      ],
+      "mean_skip_quality": 0.0806
+    },
+    "challenger": {
+      "mean_net_expectancy_usd": 40.4717,
+      "sum_composite": 441.6798,
+      "mean_composite": 49.0755,
+      "mean_wf_stability": 0.7159,
+      "worst_day_concentration": 0.3416,
+      "day_concentration_fails": 0,
+      "worst_regime_concentration": 0.9504,
+      "regime_concentration_fails": 7,
+      "total_rules": 9,
+      "n_entry": 6,
+      "n_skip": 3,
+      "n_families": 4,
+      "families": [
+        "divergence",
+        "interaction",
+        "level",
+        "skip"
+      ],
+      "mean_skip_quality": 0.0806
+    },
+    "checks": {
+      "composite_improvement_pct": 0.0635,
+      "composite_pass": true,
+      "stability_delta": 0.0,
+      "stability_pass": true,
+      "day_concentration_delta": 0.0,
+      "day_concentration_pass": true,
+      "day_concentration_fails_pass": true,
+      "rule_count_delta": 0,
+      "rule_count_pass": true,
+      "skip_quality_delta": 0.0,
+      "skip_quality_pass": true,
+      "net_expectancy_delta": 0.0,
+      "net_expectancy_pass": true,
+      "lateral_rule_count_drop": 0,
+      "lateral_day_conc_improvement": 0.0,
+      "lateral_eligible": false
+    },
+    "accepted": true,
+    "reason": "Challenger improves composite by 6.4% with net expectancy delta $+0.00, stability delta +0.0000. All guardrails passed.",
+    "verdict": "PROMOTE"
+  },
+  "hypothesis_snapshot": {
+    "rule_families": {
+      "level": true,
+      "interaction": true,
+      "divergence": true,
+      "sequence": true,
+      "skip": true,
+      "confluence": false
+    },
+    "feature_family_weights": {
+      "tape": 1.0,
+      "dealer": 1.0,
+      "flow": 1.0,
+      "skew": 1.0,
+      "structure": 1.0,
+      "expanded": 1.0,
+      "0dte": 1.0,
+      "fluxgate": 1.0,
+      "micro": 1.0,
+      "internals": 1.0,
+      "signals": 1.0,
+      "context": 1.0
+    },
+    "divergence_family_weights": {
+      "relative_strength": 1.0,
+      "z_score_div": 1.0,
+      "non_confirmation": 1.0,
+      "recoupling": 1.0,
+      "lead_lag": 1.0,
+      "composite": 1.0
+    },
+    "sequence_family_weights": {
+      "compression_expansion": 1.0,
+      "divergence_chains": 1.0,
+      "momentum_flips": 1.0,
+      "qqq_lead_confirm": 1.0,
+      "acceleration": 1.0
+    },
+    "thresholds": {
+      "min_support": 100,
+      "max_overlap": 0.6,
+      "neighbor_band_pct": 0.1,
+      "min_composite_score": 0.0
+    },
+    "skip_aggressiveness": 1.5,
+    "intermarket_weight": 1.4,
+    "move_size_preference": 2.0
+  },
+  "accepted_rules_summary": [
+    {
+      "name": "D_zdiv_nope_high_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "divergence",
+      "composite_score": 91.38,
+      "mes_net_expectancy_usd": 51.96,
+      "wf_stability": 0.8
+    },
+    {
+      "name": "L_atm_straddle_pct_high_LONG_60m",
+      "direction": "LONG",
+      "source_family": "level",
+      "composite_score": 74.706,
+      "mes_net_expectancy_usd": 69.82,
+      "wf_stability": 0.5
+    },
+    {
+      "name": "D_zdiv_vex_low_LONG_60m",
+      "direction": "LONG",
+      "source_family": "divergence",
+      "composite_score": 57.0766,
+      "mes_net_expectancy_usd": 20.84,
+      "wf_stability": 0.7273
+    },
+    {
+      "name": "D_zdiv_net_prem_high_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "divergence",
+      "composite_score": 50.4395,
+      "mes_net_expectancy_usd": 0.5,
+      "wf_stability": 0.7
+    },
+    {
+      "name": "I_atm_avg_iv_q5_Q0_qqq_nope_gt_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "interaction",
+      "composite_score": 44.9965,
+      "mes_net_expectancy_usd": 38.95,
+      "wf_stability": 0.875
+    },
+    {
+      "name": "I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m",
+      "direction": "SHORT",
+      "source_family": "interaction",
+      "composite_score": 43.9243,
+      "mes_net_expectancy_usd": 60.76,
+      "wf_stability": 0.75
+    },
+    {
+      "name": "SKIP_midday_chop_15m",
+      "direction": "SKIP",
+      "source_family": "skip",
+      "composite_score": 30.2164,
+      "mes_net_expectancy_usd": 0.0,
+      "wf_stability": 0.8182
+    },
+    {
+      "name": "SKIP_weak_gate_15m",
+      "direction": "SKIP",
+      "source_family": "skip",
+      "composite_score": 27.7152,
+      "mes_net_expectancy_usd": 0.0,
+      "wf_stability": 0.6364
+    },
+    {
+      "name": "SKIP_low_efficiency_15m",
+      "direction": "SKIP",
+      "source_family": "skip",
+      "composite_score": 21.2253,
+      "mes_net_expectancy_usd": 0.0,
+      "wf_stability": 0.6364
+    }
+  ]
+}

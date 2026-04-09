@@ -1,131 +1,132 @@
 # Karpathy Detailed Review
-**Run:** 2026-04-06 15:20:42  
+**Run:** 2026-04-07 17:03:27  
 
 ## Champion Baseline
 - Rules: 9 (entry: 6, skip: 3)
-- Net expectancy: $35.40
-- WF stability: 0.7033
-- Sum composite: 402.6612
+- Net expectancy: $36.15
+- WF stability: 0.7046
+- Sum composite: 428.0923
 
 ---
 ## Attempt 1
 
 ### Proposer Idea
-- **Summary:** Raise move_size_preference from 1.8 to 2.0 to push candidate scoring harder toward larger net moves, potentially lifting composite of existing high-expectancy rules and pruning marginal ones like D_zdiv_net_prem (−$1.29)
-- **Patch type:** scalar_adjustment
-- **Changes:** `{"move_size_preference": 2.0}`
-- **Rationale:** The rulebook contains D_zdiv_net_prem_high_SHORT_60m with net_exp_usd of -$1.29 yet composite of 56.4 — this marginal rule is surviving because move-size scoring is not penalizing near-zero expectancy enough; The best rules (atm_straddle_pct LONG $70.63, zdiv_nope SHORT $51.85, interaction SHORT $47.95) all have meaningful move sizes; increasing move_size_preference further rewards these durable signals; Five consecutive weight_adjustment and threshold_adjustment patches all returned 0.0% composite improvement — a scalar_adjustment on a different knob (move_size_preference) is a fresh mutation class that hasn't been tried in the rolling window; Regime concentration is already failing; by favoring larger moves the system may naturally diversify away from small choppy-regime rules that cluster in one regime; Current move_size_preference is 1.8, already elevated — nudging to the ceiling of 2.0 is a small bounded change that increases scoring pressure without restructuring the pipeline
+- **Summary:** Increase sequence_family_weights.qqq_lead_confirm from 1.0 to 2.0 to surface sequence-based QQQ lead/confirm rules, addressing zero sequence family promotions despite sequence family being enabled and leveraging strong QQQ intermarket signal already visible in level and interaction rules
+- **Patch type:** weight_adjustment
+- **Changes:** `{"sequence_family_weights": {"qqq_lead_confirm": 2.0}}`
+- **Rationale:** Sequence family is enabled but produced zero promoted rules — it is completely absent from the rulebook despite being a valid search surface; QQQ features (qqq_expected_move_pct, qqq_nope) already appear in top-performing rules with $37+ expectancy, suggesting QQQ lead/confirm sequences could surface durable multi-step patterns; Regime concentration is failing (any_regime_concentration_fail: true), and sequence rules — which are inherently multi-snapshot and regime-adaptive — could diversify the rulebook away from static level/divergence conditions; The current rulebook is dominated by divergence (3) and level (2) rules; boosting qqq_lead_confirm sequences could break the family monotony and improve robustness; intermarket_weight is already 1.4 showing prior success with QQQ emphasis; amplifying QQQ-specific sequences is a natural next step
+
+### Critic Response
+- **Verdict:** cautious_approve
+- **Confidence:** 0.58
+- **Recommendation:** run_with_extra_caution
+- **Concerns:**
+  - 4 out of 5 recent experiments were rejected for 0% composite improvement, suggesting the search space may be saturated and weight tweaks are not surfacing new rules - this patch may follow the same pattern
+  - Boosting a single sub-family weight from 1.0 to 2.0 (a 2x increase) is aggressive for a sub-family that has produced zero promoted rules so far - the reason it produced zero rules may be that the data doesn't support them, not that the weight is too low
+  - Regime concentration is already failing; adding sequence rules that are inherently lower-support and potentially regime-specific could worsen rather than improve this
+  - The narrative that 'QQQ features work in level/interaction therefore QQQ sequences will work' is a logical leap - features performing well in static conditions doesn't guarantee temporal sequences will
+
+### Deterministic Evaluation
+| Metric | Champion | Challenger |
+|--------|----------|------------|
+| Rules | 9.00 | 9.00 |
+| Net exp $/MES | 36.15 | 36.15 |
+| WF stability | 0.7046 | 0.7046 |
+| Sum composite | 428.09 | 428.09 |
+| Day concentration | 0.00 | 0.00 |
+
+### Judge Decision
+- **✗ REJECTED**
+- **Reason:** All guardrails pass but composite improvement (0.0%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
+
+---
+## Attempt 2
+
+### Proposer Idea
+- **Summary:** Reduce min_support from 100 to 40 to allow discovery of higher-precision, lower-frequency rules that may currently be filtered out before evaluation, addressing the stagnation where weight adjustments produce 0% composite improvement
+- **Patch type:** threshold_adjustment
+- **Changes:** `{"thresholds": {"min_support": 40}}`
+- **Rationale:** Five consecutive weight adjustment experiments produced exactly 0.0% composite improvement, indicating the current candidate pool at min_support=100 is saturated — all promotable rules are already being found; The top rule D_zdiv_nope_high_SHORT has only 223 support snapshots across 13 days, meaning high-quality rules can exist at moderate support levels; lowering to 40 opens the search to sharper, less frequent states that fire ~3 times per day; Regime concentration is already failing — surfacing new rules from conditions that fire less frequently may naturally diversify across regimes rather than concentrating in dominant market states; No sequence rules have been promoted despite the family being enabled; sequence conditions like compression_expansion tend to be rarer events that may need lower support thresholds to pass the filter; This is a fundamentally different knob class (threshold) than the weight adjustments that have been repeatedly rejected, providing clean credit assignment on whether the bottleneck is candidate filtering vs. candidate ranking
 
 ### Critic Response
 - **Verdict:** cautious_approve
 - **Confidence:** 0.55
 - **Recommendation:** run_with_extra_caution
 - **Concerns:**
-  - Five consecutive patches have all returned 0.0% composite improvement — this suggests the pipeline may be insensitive to small knob changes at this maturity, and this patch may suffer the same fate rather than being harmful
-  - Moving move_size_preference to the ceiling (2.0) eliminates future upward tuning room on this knob; if it works partially, there's no further incremental step available
-  - The reasoning that larger move preference will fix regime concentration is speculative — no diagnostic evidence directly links move size to regime diversity
-  - At 13 days, the negative-expectancy rule (D_zdiv_net_prem at -$1.29) could easily flip positive with one more day of data; pruning it via scoring pressure may be premature
+  - Reducing min_support from 100 to 40 is a 60% reduction — quite aggressive. At 14 days, 40 snapshots could mean a rule fires on only 2-3 days, creating severe day concentration risk for any newly promoted rules.
+  - The existing regime concentration is already failing. Surfacing lower-support rules may worsen this if those rules cluster in one unusual day/regime rather than diversify as hoped.
+  - Walk-forward stability estimates become unreliable at 40 snapshots over 14 days — a rule could achieve high WF stability by hitting well on just 2 folds while being absent from most.
 
 ### Deterministic Evaluation
 | Metric | Champion | Challenger |
 |--------|----------|------------|
 | Rules | 9.00 | 9.00 |
-| Net exp $/MES | 35.40 | 35.40 |
-| WF stability | 0.7033 | 0.7033 |
-| Sum composite | 402.66 | 424.92 |
+| Net exp $/MES | 36.15 | 36.15 |
+| WF stability | 0.7046 | 0.7046 |
+| Sum composite | 428.09 | 428.98 |
 | Day concentration | 0.00 | 0.00 |
 
 ### Judge Decision
-- **✓ ACCEPTED**
-- **Reason:** Challenger improves composite by 5.5% with net expectancy delta $+0.00, stability delta +0.0000. All guardrails passed.
+- **✗ REJECTED**
+- **Reason:** All guardrails pass but composite improvement (0.2%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
 
 ---
-## Attempt 2
+## Attempt 3
 
 ### Proposer Idea
-- **Summary:** Raise min_composite_score from 0.0 to 3.0 to prune marginal rules like D_zdiv_net_prem (-$1.29 expectancy, composite 61.6) and force promotion slots toward higher-quality candidates, addressing regime concentration failure
-- **Patch type:** threshold_adjustment
-- **Changes:** `{"thresholds": {"min_composite_score": 3.0}}`
-- **Rationale:** D_zdiv_net_prem_high_SHORT_60m has negative net expectancy (-$1.29) yet sits at composite 61.6 occupying a promotion slot; raising the composite floor won't directly remove it but will raise the bar for all candidates competing for slots; Regime concentration is failing (any_regime_concentration_fail: true) suggesting the current rulebook includes rules that cluster in specific regimes; a higher composite floor forces candidates to demonstrate broader robustness to earn promotion; The worst_drag list shows divergence family avg_net_exp of only $22.98 dragged down by the negative-expectancy rule; raising the quality floor should improve the average expectancy of promoted divergence rules; No previous experiment has tried adjusting min_composite_score, so this is a fresh knob with clean credit assignment
+- **Summary:** Increase move_size_preference from 2.0 to 1.2 to reduce bias toward large moves and allow more moderate-but-durable trade signals to surface, addressing regime concentration failure
+- **Patch type:** scalar_adjustment
+- **Changes:** `{"move_size_preference": 1.2}`
+- **Rationale:** move_size_preference is already maxed at 2.0, which heavily biases toward large moves — yet regime concentration is still failing, suggesting the system is over-indexing on a narrow set of large-move conditions that cluster in specific regimes; The worst entry rule (D_zdiv_net_prem_high_SHORT_60m) has negative expectancy (-$1.29) despite passing promotion — this may be surviving because it captures large adverse moves that satisfy the move_size_preference but lack robustness; Reducing move_size_preference to 1.2 (still above neutral) should broaden the candidate pool to include moderate-sized but more regime-diverse moves, potentially addressing the regime concentration flag; Recent experiments have tried weight adjustments (0% improvement), overlap tightening (-3.4%), and support reduction (0.2%) — all failed to clear the 2% hurdle. This scalar has not been tested and directly affects which candidates score highest in the ranking pipeline
 
 ### Critic Response
 - **Verdict:** cautious_approve
 - **Confidence:** 0.62
 - **Recommendation:** run_with_extra_caution
 - **Concerns:**
-  - The min_composite_score change from 0.0 to 3.0 is unlikely to have any practical effect: the lowest promoted composite is 14.1 (skip) and 49.3 (entry). A floor of 3.0 is far below any currently promoted rule, so this may be a no-op that wastes an experiment cycle.
-  - The stated goal of pruning D_zdiv_net_prem (-$1.29 expectancy, composite 61.6) will NOT be achieved by a floor of 3.0 since 61.6 >> 3.0. The narrative about this rule being pruned is misleading.
-  - The patch's own risk section acknowledges it may be too conservative to hit the 2% improvement threshold, which means this is likely headed for rejection at the acceptance gate — burning a cycle for nothing.
+  - This is an untested scalar that directly changes the ranking pipeline's candidate selection — at 14 days, the effect could be hard to distinguish from noise
+  - Reducing move_size_preference from 2.0 to 1.2 is a large jump (40% reduction) — a more incremental step to 1.5 would be safer and more testable
+  - The causal link between move_size_preference and regime concentration failure is plausible but speculative — regime concentration could be driven by the dominance of divergence family (3/6 entry rules) rather than move size bias
 
 ### Deterministic Evaluation
 | Metric | Champion | Challenger |
 |--------|----------|------------|
 | Rules | 9.00 | 9.00 |
-| Net exp $/MES | 35.40 | 35.40 |
-| WF stability | 0.7033 | 0.7033 |
-| Sum composite | 424.92 | 424.92 |
+| Net exp $/MES | 36.15 | 36.15 |
+| WF stability | 0.7046 | 0.7046 |
+| Sum composite | 428.09 | 340.36 |
 | Day concentration | 0.00 | 0.00 |
 
 ### Judge Decision
 - **✗ REJECTED**
-- **Reason:** All guardrails pass but composite improvement (0.0%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
-
----
-## Attempt 3
-
-### Proposer Idea
-- **Summary:** Increase divergence_family_weights.z_score_div from 1.0 to 1.8 to amplify the strongest rule family, where the top rule D_zdiv_nope has 94.4 composite and $51.85 expectancy, potentially surfacing additional z-score divergence rules and lifting overall composite
-- **Patch type:** weight_adjustment
-- **Changes:** `{"divergence_family_weights": {"z_score_div": 1.8}}`
-- **Rationale:** The divergence family leads all families with avg_composite 69.53 and the single best rule (D_zdiv_nope_high_SHORT_60m, composite 94.39, $51.85 net exp, 0.78 WF stability) is a z_score_div rule; Three of 6 entry rules are divergence-family, and two of the three use zdiv_ features — z_score_div is the most productive divergence sub-family but is weighted at default 1.0; Regime concentration is currently failing; boosting z_score_div may surface additional z-score divergence rules in different regimes or directions (currently only 1 LONG divergence rule exists), improving regime diversity; Recent rejected experiments tried internals (1.8), dealer (1.6), sequence qqq_lead_confirm (2.0), and min_composite_score (3.0) — none passed the 2% composite bar. This targets the empirically strongest sub-family that hasn't been tried yet
-
-### Critic Response
-- **Verdict:** cautious_approve
-- **Confidence:** 0.55
-- **Recommendation:** run_with_extra_caution
-- **Concerns:**
-  - Regime concentration is already failing — boosting the dominant family's dominant sub-family is more likely to deepen that concentration than fix it
-  - 3 of 6 entry rules are already divergence family; amplifying z_score_div risks turning this into a 4-5 rule divergence-dominated book with even less family diversity
-  - The proposer's own risk section acknowledges this could worsen regime concentration, yet the patch proceeds anyway — the hope that WF gating catches fragile rules is reasonable but not guaranteed with only 13 days
-
-### Deterministic Evaluation
-| Metric | Champion | Challenger |
-|--------|----------|------------|
-| Rules | 9.00 | 9.00 |
-| Net exp $/MES | 35.40 | 35.40 |
-| WF stability | 0.7033 | 0.7033 |
-| Sum composite | 424.92 | 424.92 |
-| Day concentration | 0.00 | 0.00 |
-
-### Judge Decision
-- **✗ REJECTED**
-- **Reason:** All guardrails pass but composite improvement (0.0%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
+- **Reason:** All guardrails pass but composite improvement (-20.5%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
 
 ---
 ## Attempt 4
 
 ### Proposer Idea
-- **Summary:** Increase feature_family_weights.structure from 1.0 to 1.8 to boost structure features like spot_vs_poc which appears in the second-best interaction rule with $47.95 expectancy, potentially surfacing new structure-based rules and addressing regime concentration failure by diversifying rule conditions
+- **Summary:** Increase divergence_family_weights.z_score_div from 1.0 to 1.8 to amplify the strongest performing rule family sub-type, where z_score_div rules hold the top composite (73.0) and best net expectancy ($51.89) among all promoted rules
 - **Patch type:** weight_adjustment
-- **Changes:** `{"feature_family_weights": {"structure": 1.8}}`
-- **Rationale:** spot_vs_poc is the 4th highest feature by lift ($47.95 avg net expectancy) but only appears in 1 rule — structure features are underrepresented despite strong signal; The system has regime concentration failure and only 3 active entry families (divergence, level, interaction) — boosting structure features could surface new candidates from underexplored feature space; No sequence rules were promoted despite sequence families being enabled, and no structure-heavy rules exist — this is a fresh search direction not yet attempted in recent experiments; Recent rejected patches targeted divergence weights and thresholds which produced 0% composite improvement — structure is a different family axis entirely, avoiding the retry discipline concern
+- **Changes:** `{"divergence_family_weights": {"z_score_div": 1.8}}`
+- **Rationale:** The top promoted rule D_zdiv_nope_high_SHORT_60m (composite 73.0, $51.89 net exp, 0.78 wf_stability) is a z_score_div divergence rule — the single strongest rule in the entire rulebook; Two of the three divergence rules use z_score_div features (zdiv_nope_state, zdiv_vex_state, zdiv_net_prem_state), and divergence family has highest avg_composite (52.34) among entry families; The regime concentration failure suggests we need more diverse rule discovery; boosting z_score_div weight should help the candidate generator explore more z-score divergence thresholds and conditions, potentially surfacing new high-quality variants across different regimes; Previous rejected attempts targeted sequence weights (0% improvement), min_support (0.2%), max_overlap (-3.4%), structure weights (0%), and move_size_preference (-20.5%) — divergence_family_weights have not been tried this session
 
 ### Critic Response
 - **Verdict:** cautious_approve
 - **Confidence:** 0.52
 - **Recommendation:** run_with_extra_caution
 - **Concerns:**
-  - Recent history shows 4 out of 5 weight/threshold adjustment patches were rejected by the judge for producing 0% composite improvement — this pattern suggests feature weight adjustments may not meaningfully alter the promotion pipeline at current data maturity
-  - spot_vs_poc appears in only 1 rule with $47.95 expectancy — extrapolating from a single rule that the entire structure family is underexplored is thin evidence for a 1.0→1.8 weight boost
-  - Regime concentration is already failing; if structure features are correlated with the same regime conditions driving existing rules, this could worsen rather than help the problem
+  - Boosting z_score_div weight risks deepening the already-failing regime concentration by doubling down on the dominant divergence family (3 of 6 entry rules are already divergence)
+  - The diagnostics explicitly flag regime concentration failure, and amplifying the already-strongest sub-family is the opposite of diversification — it's concentration chasing
+  - All three z_score_div rules already made it through promotion at weight 1.0; raising to 1.8 may just generate near-duplicate variants of existing zdiv rules that get pruned by overlap anyway
+  - Five consecutive rejected patches this session suggest the rulebook may be near a local optimum for 14 days of data — another weight tweak is unlikely to clear the 2% composite improvement bar
 
 ### Deterministic Evaluation
 | Metric | Champion | Challenger |
 |--------|----------|------------|
 | Rules | 9.00 | 9.00 |
-| Net exp $/MES | 35.40 | 35.40 |
-| WF stability | 0.7033 | 0.7033 |
-| Sum composite | 424.92 | 424.92 |
+| Net exp $/MES | 36.15 | 36.15 |
+| WF stability | 0.7046 | 0.7046 |
+| Sum composite | 428.09 | 428.09 |
 | Day concentration | 0.00 | 0.00 |
 
 ### Judge Decision
@@ -136,34 +137,34 @@
 ## Attempt 5
 
 ### Proposer Idea
-- **Summary:** Tighten max_overlap from 0.6 to 0.42 to force pruning of near-duplicate divergence rules, free promotion slots for diverse families, and address regime concentration failure
+- **Summary:** Raise min_composite_score from 0.0 to 3.0 to prune weak candidates earlier, freeing promotion slots for stronger rules and addressing regime concentration failure by eliminating marginal rules like D_zdiv_net_prem (net_exp -$1.29)
 - **Patch type:** threshold_adjustment
-- **Changes:** `{"thresholds": {"max_overlap": 0.42}}`
-- **Rationale:** 3 of 6 entry rules are divergence family (D_zdiv_nope, D_zdiv_net_prem, D_zdiv_vex) — all z-score divergence rules likely firing on overlapping snapshots, crowding out other families; D_zdiv_net_prem has negative expectancy (-$1.29) yet occupies a promotion slot with composite 61.6 — tighter overlap pruning should eliminate it as redundant with the stronger D_zdiv_nope (composite 94.4, $51.85); Regime concentration is failing (any_regime_concentration_fail: true) — overlapping divergence rules that fire in the same regime are the most likely cause; Previous weight_adjustment attempts (z_score_div, structure, feature weights) all produced 0.0% composite improvement — the issue isn't weighting, it's that redundant rules consume promotion slots; Reducing max_overlap from 0.6 to 0.42 is a meaningful structural change that forces the pipeline to prefer non-overlapping rules, opening slots for sequence or other underrepresented families
+- **Changes:** `{"thresholds": {"min_composite_score": 3.0}}`
+- **Rationale:** One promoted entry rule (D_zdiv_net_prem_high_SHORT_60m) has negative net expectancy (-$1.29) and composite of only 59.07, dragging down overall divergence family performance and occupying a promotion slot; Regime concentration is already failing (any_regime_concentration_fail=true), suggesting marginal rules are fitting narrow regimes rather than durable states — raising the floor should filter these out; The interaction family has only 1 rule (composite 43.29) and sequence family has 0 promotions, suggesting weak candidates are crowding out potentially better rules from underrepresented families; This knob has NOT been tried in any recent experiment — all 5 recent attempts were weight_adjustments, threshold.min_support, move_size_preference, and threshold.max_overlap, so this is a fresh direction
 
 ### Critic Response
 - **Verdict:** cautious_approve
-- **Confidence:** 0.68
+- **Confidence:** 0.62
 - **Recommendation:** run_with_extra_caution
 - **Concerns:**
-  - Dropping max_overlap from 0.6 to 0.42 is a 30% relative tightening — this is a meaningful jump that could prune more rules than intended, not just the targeted D_zdiv_net_prem
-  - Three consecutive weight-adjustment patches all produced 0.0% composite improvement, suggesting the pipeline may be relatively stable/saturated — this structural change may also produce 0.0% and waste an attempt
-  - The assumption that divergence rules overlap heavily is plausible but not directly evidenced in diagnostics — no pairwise overlap statistics are provided
+  - min_composite_score of 3.0 is extremely low — the weakest promoted rule has composite 43.29, so a floor of 3.0 will not prune ANY currently promoted rule, making the claimed benefit of removing D_zdiv_net_prem (composite 59.07) incorrect
+  - The patch narrative claims it will remove the negative-expectancy rule, but composite 59.07 >> 3.0, so this rule will survive the filter unchanged — the proposer appears to misunderstand what this knob controls
+  - This is likely a no-op or near-no-op: if min_composite_score filters candidates before promotion, a threshold of 3.0 out of 6297 candidates will prune only the absolute worst noise, which may already be filtered by other gates
 
 ### Deterministic Evaluation
 | Metric | Champion | Challenger |
 |--------|----------|------------|
 | Rules | 9.00 | 9.00 |
-| Net exp $/MES | 35.40 | 46.35 |
-| WF stability | 0.7033 | 0.7244 |
-| Sum composite | 424.92 | 410.42 |
+| Net exp $/MES | 36.15 | 36.15 |
+| WF stability | 0.7046 | 0.7046 |
+| Sum composite | 428.09 | 428.09 |
 | Day concentration | 0.00 | 0.00 |
 
 ### Judge Decision
 - **✗ REJECTED**
-- **Reason:** All guardrails pass but composite improvement (-3.4%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
+- **Reason:** All guardrails pass but composite improvement (0.0%) below minimum threshold (2%). No structural simplification qualifies for LATERAL_PROMOTE. Champion retained.
 
 ---
 ## LLM Budget
-- Spend: $1.6204 / $30.00
+- Spend: $1.6239 / $30.00
 - Calls: 5 proposer + 5 critic
