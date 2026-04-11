@@ -35,6 +35,16 @@ from pathlib import Path
 # Ensure sibling imports work
 sys.path.insert(0, str(Path(__file__).parent))
 
+# ── Auto-load .env file so ANTHROPIC_API_KEY is always available ──
+_env_file = Path(__file__).parent / ".env"
+if _env_file.exists():
+    for _line in _env_file.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            if not os.environ.get(_k.strip()):
+                os.environ[_k.strip()] = _v.strip()
+
 import hashlib
 
 from config import DB_PATH, ARTIFACTS_DIR, MIN_SUPPORT, get_maturity_tier
