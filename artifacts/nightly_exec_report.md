@@ -1,30 +1,29 @@
 # Karpathy Nightly Execution Report
-**Generated:** 2026-04-08 15:06:35  
-**Elapsed:** 56125.5s  
-**Maturity:** LIVE — walk-forward validated (15 days)  
+**Generated:** 2026-04-11 00:45:13  
+**Elapsed:** 88959.7s  
+**Maturity:** LIVE — walk-forward validated (17 days)  
 
 ## Challenger Summary
 - Attempts: **5**
-- Accepted: **1**
-- Rejected: **4**
+- Accepted: **0**
+- Rejected: **5**
 
 ## Top LONG Rules
-- **L_atm_straddle_pct_high_LONG_60m** — $69.82/MES, WF 0.50, composite 74.7060
-- **D_zdiv_vex_low_LONG_60m** — $20.84/MES, WF 0.73, composite 57.0766
+- **L_atm_straddle_pct_high_LONG_60m** — $74.46/MES, WF 0.55, composite 78.0811
+- **I_breadth_composite_q5_Q0_pct_of_day_lt_LONG_60m** — $34.91/MES, WF 0.75, composite 63.1413
+- **I_nope_q5_Q0_qqq_gex_total_gt_LONG_60m** — $53.36/MES, WF 0.83, composite 52.0735
 
 ## Top SHORT Rules
-- **D_zdiv_nope_high_SHORT_60m** — $51.96/MES, WF 0.80, composite 91.3800
-- **D_zdiv_net_prem_high_SHORT_60m** — $0.50/MES, WF 0.70, composite 50.4395
-- **I_atm_avg_iv_q5_Q0_qqq_nope_gt_SHORT_60m** — $38.95/MES, WF 0.88, composite 44.9965
+- **D_zdiv_nope_high_SHORT_60m** — $54.14/MES, WF 0.83, composite 95.2885
 
 ## Top SKIP Rules
-- **SKIP_midday_chop_15m** — composite 30.2164, support 7821
-- **SKIP_weak_gate_15m** — composite 27.7152, support 1029
-- **SKIP_low_efficiency_15m** — composite 21.2253, support 16147
+- **SKIP_midday_chop_30m** — composite 29.0576, support 8757
+- **SKIP_weak_gate_15m** — composite 28.5562, support 1171
+- **SKIP_low_efficiency_15m** — composite 21.5251, support 18180
 
 ## /MES Expectancy (1 contract)
-- Mean net expectancy: **$40.47**
-- Best: $69.82 / Worst: $0.50
+- Mean net expectancy: **$42.60**
+- Best: $74.46 / Worst: $18.89
 
 ## Divergence Family Contributions
 - **PRIMARY**: 5 base, 43 total columns (33.9%)
@@ -33,7 +32,7 @@
 - Total divergence columns: **127**
 
 ## LLM Spend
-- Total: **$1.6204**
+- Total: **$1.6263**
 - Proposer calls: 5
 - Critic calls: 5
-- Remaining: $28.38 of $30.00 hard cap
+- Remaining: $48.37 of $50.00 hard cap

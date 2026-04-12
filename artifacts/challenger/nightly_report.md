@@ -1,24 +1,24 @@
 # Karpathy Autoresearch — Nightly Report
-**Generated:** 2026-04-09 06:42
+**Generated:** 2026-04-12 01:27
 **Trading instrument:** 1 /MES contract
 **Maturity tier:** LIVE — walk-forward validated
 
 ## Data Summary
-- Snapshots: 60,160
-- Trading days: 15
-- Features: 780
+- Snapshots: 68,102
+- Trading days: 17
+- Features: 785
 - Candidates evaluated: 6,297
 - Rules promoted: 9
 
 ## Assumptions
-- /MES reference price: 6758 (live SPY spot 675.78 x10)
+- /MES reference price: 6793 (live SPY spot 679.27 x10)
 - Point value: $5.00
 - Tick size: 0.25 pts = $1.25
 - Round-trip cost: $2.50
 - Slippage: 2 ticks RT = $2.50
 - All dollar figures are **estimated** based on these assumptions.
 
-## LONG Patterns (2)
+## LONG Patterns (5)
 
 ### L_atm_straddle_pct_high_LONG_60m
 **Direction:** LONG | **Horizon:** 60m | **Confidence:** LOW
@@ -28,15 +28,71 @@
 
 | Metric | Value |
 |--------|-------|
-| Sample size | 647 snapshots across 12 day(s) |
-| Win rate | 65.7% |
-| Historically median favorable move | 44.3 pts ($221) |
-| Typical adverse excursion | 18.2 pts ($91) |
-| Estimated net expectancy (1 /MES) | **$69.82** per trade |
-| Walk-forward stability | 50% (5/10 folds) |
+| Sample size | 651 snapshots across 13 day(s) |
+| Win rate | 65.9% |
+| Historically median favorable move | 44.8 pts ($224) |
+| Typical adverse excursion | 18.1 pts ($91) |
+| Estimated net expectancy (1 /MES) | **$74.46** per trade |
+| Walk-forward stability | 55% (6/11 folds) |
 
 **Suggested stop:** 27.2 pts (109 ticks, $136)
-**Suggested target range:** 26.6–44.3 pts ($133–$221)
+**Suggested target range:** 26.9–44.8 pts ($134–$224)
+
+### I_breadth_composite_q5_Q0_pct_of_day_lt_LONG_60m
+**Direction:** LONG | **Horizon:** 60m | **Confidence:** MODERATE
+
+**Conditions:**
+- breadth_composite_q5 = 0
+- pct_of_day < 0.3625
+
+| Metric | Value |
+|--------|-------|
+| Sample size | 4339 snapshots across 11 day(s) |
+| Win rate | 54.4% |
+| Historically median favorable move | 43.1 pts ($216) |
+| Typical adverse excursion | 8.3 pts ($42) |
+| Estimated net expectancy (1 /MES) | **$34.91** per trade |
+| Walk-forward stability | 75% (6/8 folds) |
+
+**Suggested stop:** 12.5 pts (50 ticks, $63)
+**Suggested target range:** 25.9–43.1 pts ($129–$216)
+
+### I_nope_q5_Q0_qqq_gex_total_gt_LONG_60m
+**Direction:** LONG | **Horizon:** 60m | **Confidence:** HIGH
+
+**Conditions:**
+- nope_q5 = 0
+- qqq_gex_total > -5.161e+08
+
+| Metric | Value |
+|--------|-------|
+| Sample size | 1068 snapshots across 6 day(s) |
+| Win rate | 82.2% |
+| Historically median favorable move | 19.9 pts ($99) |
+| Typical adverse excursion | 5.1 pts ($25) |
+| Estimated net expectancy (1 /MES) | **$53.36** per trade |
+| Walk-forward stability | 83% (5/6 folds) |
+
+**Suggested stop:** 7.6 pts (30 ticks, $38)
+**Suggested target range:** 11.9–19.9 pts ($60–$99)
+
+### D_zdiv_straddle_pct_high_LONG_60m
+**Direction:** LONG | **Horizon:** 60m | **Confidence:** MODERATE
+
+**Conditions:**
+- zdiv_straddle_pct_state = strong_pos
+
+| Metric | Value |
+|--------|-------|
+| Sample size | 693 snapshots across 16 day(s) |
+| Win rate | 51.7% |
+| Historically median favorable move | 22.2 pts ($111) |
+| Typical adverse excursion | 11.0 pts ($55) |
+| Estimated net expectancy (1 /MES) | **$19.86** per trade |
+| Walk-forward stability | 62% (8/13 folds) |
+
+**Suggested stop:** 16.4 pts (66 ticks, $82)
+**Suggested target range:** 13.3–22.2 pts ($67–$111)
 
 ### D_zdiv_vex_low_LONG_60m
 **Direction:** LONG | **Horizon:** 60m | **Confidence:** MODERATE
@@ -46,17 +102,17 @@
 
 | Metric | Value |
 |--------|-------|
-| Sample size | 2200 snapshots across 14 day(s) |
-| Win rate | 54.0% |
-| Historically median favorable move | 23.3 pts ($116) |
-| Typical adverse excursion | 14.0 pts ($70) |
-| Estimated net expectancy (1 /MES) | **$20.84** per trade |
-| Walk-forward stability | 73% (8/11 folds) |
+| Sample size | 2636 snapshots across 16 day(s) |
+| Win rate | 52.7% |
+| Historically median favorable move | 19.2 pts ($96) |
+| Typical adverse excursion | 13.1 pts ($66) |
+| Estimated net expectancy (1 /MES) | **$18.89** per trade |
+| Walk-forward stability | 77% (10/13 folds) |
 
-**Suggested stop:** 21.0 pts (84 ticks, $105)
-**Suggested target range:** 14.0–23.3 pts ($70–$116)
+**Suggested stop:** 19.7 pts (79 ticks, $99)
+**Suggested target range:** 11.5–19.2 pts ($57–$96)
 
-## SHORT Patterns (4)
+## SHORT Patterns (1)
 
 ### D_zdiv_nope_high_SHORT_60m
 **Direction:** SHORT | **Horizon:** 60m | **Confidence:** HIGH
@@ -66,84 +122,28 @@
 
 | Metric | Value |
 |--------|-------|
-| Sample size | 237 snapshots across 14 day(s) |
-| Win rate | 65.0% |
-| Historically median favorable move | 51.0 pts ($255) |
-| Typical adverse excursion | 7.7 pts ($39) |
-| Estimated net expectancy (1 /MES) | **$51.96** per trade |
-| Walk-forward stability | 80% (8/10 folds) |
+| Sample size | 292 snapshots across 16 day(s) |
+| Win rate | 68.2% |
+| Historically median favorable move | 54.8 pts ($274) |
+| Typical adverse excursion | 9.0 pts ($45) |
+| Estimated net expectancy (1 /MES) | **$54.14** per trade |
+| Walk-forward stability | 83% (10/12 folds) |
 
-**Suggested stop:** 11.6 pts (46 ticks, $58)
-**Suggested target range:** 30.6–51.0 pts ($153–$255)
-
-### D_zdiv_net_prem_high_SHORT_60m
-**Direction:** SHORT | **Horizon:** 60m | **Confidence:** MODERATE
-
-**Conditions:**
-- zdiv_net_prem_state = strong_pos
-
-| Metric | Value |
-|--------|-------|
-| Sample size | 258 snapshots across 14 day(s) |
-| Win rate | 45.3% |
-| Historically median favorable move | 39.8 pts ($199) |
-| Typical adverse excursion | 16.3 pts ($82) |
-| Estimated net expectancy (1 /MES) | **$0.50** per trade |
-| Walk-forward stability | 70% (7/10 folds) |
-
-**Suggested stop:** 24.5 pts (98 ticks, $122)
-**Suggested target range:** 23.9–39.8 pts ($119–$199)
-
-### I_atm_avg_iv_q5_Q0_qqq_nope_gt_SHORT_60m
-**Direction:** SHORT | **Horizon:** 60m | **Confidence:** HIGH
-
-**Conditions:**
-- atm_avg_iv_q5 = 0
-- qqq_nope > -35.5
-
-| Metric | Value |
-|--------|-------|
-| Sample size | 8169 snapshots across 11 day(s) |
-| Win rate | 66.2% |
-| Historically median favorable move | 21.6 pts ($108) |
-| Typical adverse excursion | 8.0 pts ($40) |
-| Estimated net expectancy (1 /MES) | **$38.95** per trade |
-| Walk-forward stability | 88% (7/8 folds) |
-
-**Suggested stop:** 12.0 pts (48 ticks, $60)
-**Suggested target range:** 13.0–21.6 pts ($65–$108)
-
-### I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m
-**Direction:** SHORT | **Horizon:** 60m | **Confidence:** MODERATE
-
-**Conditions:**
-- atm_avg_iv_q5 = 0
-- trin > 0.89
-
-| Metric | Value |
-|--------|-------|
-| Sample size | 5936 snapshots across 10 day(s) |
-| Win rate | 73.9% |
-| Historically median favorable move | 16.9 pts ($84) |
-| Typical adverse excursion | 8.8 pts ($44) |
-| Estimated net expectancy (1 /MES) | **$60.76** per trade |
-| Walk-forward stability | 75% (6/8 folds) |
-
-**Suggested stop:** 13.3 pts (53 ticks, $66)
-**Suggested target range:** 10.1–16.9 pts ($51–$84)
+**Suggested stop:** 13.5 pts (54 ticks, $67)
+**Suggested target range:** 32.9–54.8 pts ($164–$274)
 
 ## SKIP Conditions (3)
 *When these conditions are active, avoid new entries.*
 
-### SKIP_midday_chop_15m
+### SKIP_midday_chop_30m
 **When active:** Avoid new entries
 
 **Conditions:**
 - 0.25 <= pct_of_day <= 0.55
 - efficiency_ratio < 0.25
 
-- Historically, forward moves in this state average 9.91% with no clear direction
-- Sample: 7821 snapshots
+- Historically, forward moves in this state average 12.38% with no clear direction
+- Sample: 8757 snapshots
 
 ### SKIP_weak_gate_15m
 **When active:** Avoid new entries
@@ -151,8 +151,8 @@
 **Conditions:**
 - structural_gate < 0.2
 
-- Historically, forward moves in this state average 11.33% with no clear direction
-- Sample: 1029 snapshots
+- Historically, forward moves in this state average 10.80% with no clear direction
+- Sample: 1171 snapshots
 
 ### SKIP_low_efficiency_15m
 **When active:** Avoid new entries
@@ -160,8 +160,8 @@
 **Conditions:**
 - efficiency_ratio < 0.15
 
-- Historically, forward moves in this state average 11.62% with no clear direction
-- Sample: 16147 snapshots
+- Historically, forward moves in this state average 11.15% with no clear direction
+- Sample: 18180 snapshots
 
 ---
 *All figures are historically observed medians, not guarantees.*

@@ -1,17 +1,17 @@
 {
-  "generated": "2026-04-09 06:42",
+  "generated": "2026-04-11 04:45",
   "instrument": "/MES x1",
   "data": {
-    "snapshots": 60160,
-    "days": 15,
-    "features": 780,
+    "snapshots": 68102,
+    "days": 17,
+    "features": 785,
     "candidates": 6297,
     "promoted": 9,
     "preliminary": false
   },
   "assumptions": {
-    "mes_reference_price": 6757.8,
-    "mes_reference_source": "live SPY spot 675.78 x10",
+    "mes_reference_price": 6792.7,
+    "mes_reference_source": "live SPY spot 679.27 x10",
     "point_value": 5.0,
     "round_trip_cost": 2.5,
     "slippage_usd": 2.5
@@ -31,21 +31,21 @@
           "value": "strong_pos"
         }
       ],
-      "support": 237,
-      "distinct_days": 14,
-      "win_rate": 0.6498,
-      "median_mfe_pts": 51.05,
-      "median_mfe_usd": 255.25,
-      "median_mae_pts": 7.75,
-      "median_mae_usd": 38.73,
-      "net_expectancy_usd": 51.96,
-      "suggested_stop_pts": 11.62,
-      "suggested_stop_usd": 58.09,
-      "suggested_target_lo_pts": 30.63,
-      "suggested_target_hi_pts": 51.05,
-      "wf_stability": 0.8,
+      "support": 292,
+      "distinct_days": 16,
+      "win_rate": 0.6815,
+      "median_mfe_pts": 54.78,
+      "median_mfe_usd": 273.88,
+      "median_mae_pts": 8.97,
+      "median_mae_usd": 44.86,
+      "net_expectancy_usd": 54.14,
+      "suggested_stop_pts": 13.46,
+      "suggested_stop_usd": 67.29,
+      "suggested_target_lo_pts": 32.87,
+      "suggested_target_hi_pts": 54.78,
+      "wf_stability": 0.8333,
       "confidence": "HIGH",
-      "composite_score": 91.38,
+      "composite_score": 95.2885,
       "neighbor_robust": true
     },
     {
@@ -62,21 +62,126 @@
           "value": 0.8
         }
       ],
-      "support": 647,
-      "distinct_days": 12,
-      "win_rate": 0.6569,
-      "median_mfe_pts": 44.29,
-      "median_mfe_usd": 221.43,
-      "median_mae_pts": 18.15,
-      "median_mae_usd": 90.75,
-      "net_expectancy_usd": 69.82,
-      "suggested_stop_pts": 27.23,
-      "suggested_stop_usd": 136.13,
-      "suggested_target_lo_pts": 26.57,
-      "suggested_target_hi_pts": 44.29,
-      "wf_stability": 0.5,
+      "support": 651,
+      "distinct_days": 13,
+      "win_rate": 0.659,
+      "median_mfe_pts": 44.81,
+      "median_mfe_usd": 224.05,
+      "median_mae_pts": 18.14,
+      "median_mae_usd": 90.72,
+      "net_expectancy_usd": 74.46,
+      "suggested_stop_pts": 27.22,
+      "suggested_stop_usd": 136.08,
+      "suggested_target_lo_pts": 26.89,
+      "suggested_target_hi_pts": 44.81,
+      "wf_stability": 0.5455,
       "confidence": "LOW",
-      "composite_score": 74.706,
+      "composite_score": 78.0811,
+      "neighbor_robust": true
+    },
+    {
+      "name": "I_breadth_composite_q5_Q0_pct_of_day_lt_LONG_60m",
+      "direction": "LONG",
+      "horizon_min": 60,
+      "conditions_english": [
+        "breadth_composite_q5 = 0",
+        "pct_of_day < 0.3625"
+      ],
+      "conditions": [
+        {
+          "feature": "breadth_composite_q5",
+          "op": "eq",
+          "value": 0
+        },
+        {
+          "feature": "pct_of_day",
+          "op": "lt",
+          "value": 0.3625213675213675
+        }
+      ],
+      "support": 4339,
+      "distinct_days": 11,
+      "win_rate": 0.5444,
+      "median_mfe_pts": 43.14,
+      "median_mfe_usd": 215.71,
+      "median_mae_pts": 8.35,
+      "median_mae_usd": 41.74,
+      "net_expectancy_usd": 34.91,
+      "suggested_stop_pts": 12.52,
+      "suggested_stop_usd": 62.6,
+      "suggested_target_lo_pts": 25.89,
+      "suggested_target_hi_pts": 43.14,
+      "wf_stability": 0.75,
+      "confidence": "MODERATE",
+      "composite_score": 63.1413,
+      "neighbor_robust": true
+    },
+    {
+      "name": "I_nope_q5_Q0_qqq_gex_total_gt_LONG_60m",
+      "direction": "LONG",
+      "horizon_min": 60,
+      "conditions_english": [
+        "nope_q5 = 0",
+        "qqq_gex_total > -5.161e+08"
+      ],
+      "conditions": [
+        {
+          "feature": "nope_q5",
+          "op": "eq",
+          "value": 0
+        },
+        {
+          "feature": "qqq_gex_total",
+          "op": "gt",
+          "value": -516067048.6234969
+        }
+      ],
+      "support": 1068,
+      "distinct_days": 6,
+      "win_rate": 0.8221,
+      "median_mfe_pts": 19.86,
+      "median_mfe_usd": 99.3,
+      "median_mae_pts": 5.07,
+      "median_mae_usd": 25.36,
+      "net_expectancy_usd": 53.36,
+      "suggested_stop_pts": 7.61,
+      "suggested_stop_usd": 38.04,
+      "suggested_target_lo_pts": 11.92,
+      "suggested_target_hi_pts": 19.86,
+      "wf_stability": 0.8333,
+      "confidence": "HIGH",
+      "composite_score": 52.0735,
+      "neighbor_robust": true
+    },
+    {
+      "name": "D_zdiv_straddle_pct_high_LONG_60m",
+      "direction": "LONG",
+      "horizon_min": 60,
+      "conditions_english": [
+        "zdiv_straddle_pct_state = strong_pos"
+      ],
+      "conditions": [
+        {
+          "feature": "zdiv_straddle_pct_state",
+          "op": "eq",
+          "value": "strong_pos"
+        }
+      ],
+      "support": 693,
+      "distinct_days": 16,
+      "win_rate": 0.5166,
+      "median_mfe_pts": 22.25,
+      "median_mfe_usd": 111.24,
+      "median_mae_pts": 10.96,
+      "median_mae_usd": 54.81,
+      "net_expectancy_usd": 19.86,
+      "suggested_stop_pts": 16.44,
+      "suggested_stop_usd": 82.21,
+      "suggested_target_lo_pts": 13.35,
+      "suggested_target_hi_pts": 22.25,
+      "wf_stability": 0.6154,
+      "confidence": "MODERATE",
+      "composite_score": 51.313,
       "neighbor_robust": true
     },
     {
@@ -93,132 +198,27 @@
           "value": "strong_neg"
         }
       ],
-      "support": 2200,
-      "distinct_days": 14,
-      "win_rate": 0.5405,
-      "median_mfe_pts": 23.26,
-      "median_mfe_usd": 116.29,
-      "median_mae_pts": 14.0,
-      "median_mae_usd": 69.98,
-      "net_expectancy_usd": 20.84,
-      "suggested_stop_pts": 21.0,
-      "suggested_stop_usd": 104.98,
-      "suggested_target_lo_pts": 13.95,
-      "suggested_target_hi_pts": 23.26,
-      "wf_stability": 0.7273,
+      "support": 2636,
+      "distinct_days": 16,
+      "win_rate": 0.5273,
+      "median_mfe_pts": 19.15,
+      "median_mfe_usd": 95.77,
+      "median_mae_pts": 13.14,
+      "median_mae_usd": 65.72,
+      "net_expectancy_usd": 18.89,
+      "suggested_stop_pts": 19.72,
+      "suggested_stop_usd": 98.58,
+      "suggested_target_lo_pts": 11.49,
+      "suggested_target_hi_pts": 19.15,
+      "wf_stability": 0.7692,
       "confidence": "MODERATE",
-      "composite_score": 57.0766,
+      "composite_score": 50.4401,
       "neighbor_robust": true
     },
     {
-      "name": "D_zdiv_net_prem_high_SHORT_60m",
-      "direction": "SHORT",
-      "horizon_min": 60,
-      "conditions_english": [
-        "zdiv_net_prem_state = strong_pos"
-      ],
-      "conditions": [
-        {
-          "feature": "zdiv_net_prem_state",
-          "op": "eq",
-          "value": "strong_pos"
-        }
-      ],
-      "support": 258,
-      "distinct_days": 14,
-      "win_rate": 0.4535,
-      "median_mfe_pts": 39.81,
-      "median_mfe_usd": 199.06,
-      "median_mae_pts": 16.33,
-      "median_mae_usd": 81.64,
-      "net_expectancy_usd": 0.5,
-      "suggested_stop_pts": 24.49,
-      "suggested_stop_usd": 122.46,
-      "suggested_target_lo_pts": 23.89,
-      "suggested_target_hi_pts": 39.81,
-      "wf_stability": 0.7,
-      "confidence": "MODERATE",
-      "composite_score": 50.4395,
-      "neighbor_robust": true
-    },
-    {
-      "name": "I_atm_avg_iv_q5_Q0_qqq_nope_gt_SHORT_60m",
-      "direction": "SHORT",
-      "horizon_min": 60,
-      "conditions_english": [
-        "atm_avg_iv_q5 = 0",
-        "qqq_nope > -35.5"
-      ],
-      "conditions": [
-        {
-          "feature": "atm_avg_iv_q5",
-          "op": "eq",
-          "value": 0
-        },
-        {
-          "feature": "qqq_nope",
-          "op": "gt",
-          "value": -35.50294078657242
-        }
-      ],
-      "support": 8169,
-      "distinct_days": 11,
-      "win_rate": 0.6619,
-      "median_mfe_pts": 21.63,
-      "median_mfe_usd": 108.13,
-      "median_mae_pts": 8.01,
-      "median_mae_usd": 40.04,
-      "net_expectancy_usd": 38.95,
-      "suggested_stop_pts": 12.01,
-      "suggested_stop_usd": 60.06,
-      "suggested_target_lo_pts": 12.98,
-      "suggested_target_hi_pts": 21.63,
-      "wf_stability": 0.875,
-      "confidence": "HIGH",
-      "composite_score": 44.9965,
-      "neighbor_robust": true
-    },
-    {
-      "name": "I_atm_avg_iv_q5_Q0_trin_gt_SHORT_60m",
-      "direction": "SHORT",
-      "horizon_min": 60,
-      "conditions_english": [
-        "atm_avg_iv_q5 = 0",
-        "trin > 0.89"
-      ],
-      "conditions": [
-        {
-          "feature": "atm_avg_iv_q5",
-          "op": "eq",
-          "value": 0
-        },
-        {
-          "feature": "trin",
-          "op": "gt",
-          "value": 0.89
-        }
-      ],
-      "support": 5936,
-      "distinct_days": 10,
-      "win_rate": 0.7394,
-      "median_mfe_pts": 16.86,
-      "median_mfe_usd": 84.28,
-      "median_mae_pts": 8.84,
-      "median_mae_usd": 44.19,
-      "net_expectancy_usd": 60.76,
-      "suggested_stop_pts": 13.26,
-      "suggested_stop_usd": 66.28,
-      "suggested_target_lo_pts": 10.11,
-      "suggested_target_hi_pts": 16.86,
-      "wf_stability": 0.75,
-      "confidence": "MODERATE",
-      "composite_score": 43.9243,
-      "neighbor_robust": true
-    },
-    {
-      "name": "SKIP_midday_chop_15m",
+      "name": "SKIP_midday_chop_30m",
       "direction": "SKIP",
-      "horizon_min": 15,
+      "horizon_min": 30,
       "conditions_english": [
         "0.25 <= pct_of_day <= 0.55",
         "efficiency_ratio < 0.25"
@@ -236,8 +236,8 @@
           "value": 0.25
         }
       ],
-      "support": 7821,
-      "distinct_days": 15,
+      "support": 8757,
+      "distinct_days": 17,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -248,9 +248,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.8182,
-      "confidence": "HIGH",
-      "composite_score": 30.2164,
+      "wf_stability": 0.6923,
+      "confidence": "MODERATE",
+      "composite_score": 29.0576,
       "neighbor_robust": true
     },
     {
@@ -267,8 +267,8 @@
           "value": 0.2
         }
       ],
-      "support": 1029,
-      "distinct_days": 15,
+      "support": 1171,
+      "distinct_days": 17,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -279,9 +279,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.6364,
+      "wf_stability": 0.6923,
       "confidence": "MODERATE",
-      "composite_score": 27.7152,
+      "composite_score": 28.5562,
       "neighbor_robust": true
     },
     {
@@ -298,8 +298,8 @@
           "value": 0.15
         }
       ],
-      "support": 16147,
-      "distinct_days": 15,
+      "support": 18180,
+      "distinct_days": 17,
       "win_rate": 0.0,
       "median_mfe_pts": 0.0,
       "median_mfe_usd": 0.0,
@@ -310,9 +310,9 @@
       "suggested_stop_usd": 0.0,
       "suggested_target_lo_pts": 0.0,
       "suggested_target_hi_pts": 0.0,
-      "wf_stability": 0.6364,
+      "wf_stability": 0.6154,
       "confidence": "MODERATE",
-      "composite_score": 21.2253,
+      "composite_score": 21.5251,
       "neighbor_robust": true
     }
   ]

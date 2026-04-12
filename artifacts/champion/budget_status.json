@@ -1,7 +1,7 @@
 {
-  "generated": "2026-04-09 04:26:35",
+  "generated": "2026-04-11 00:01:41",
   "config": {
-    "hard_budget_usd": 30.0,
+    "hard_budget_usd": 50.0,
     "soft_budget_usd": 24.0,
     "max_challengers": 5,
     "input_price_per_mtok": 15.0,
@@ -9,17 +9,17 @@
     "default_model": "claude-opus-4-6"
   },
   "spend": {
-    "total_usd": 1.291335,
-    "remaining_usd": 28.708665,
-    "pct_of_hard_cap": 4.3
+    "total_usd": 0.0,
+    "remaining_usd": 50.0,
+    "pct_of_hard_cap": 0.0
   },
   "calls": {
-    "proposer": 4,
-    "critic": 4,
-    "total": 8
+    "proposer": 0,
+    "critic": 0,
+    "total": 0
   },
   "challengers": {
-    "attempted": 4,
+    "attempted": 0,
     "max": 5
   },
   "stop_reason": null
