@@ -159,6 +159,30 @@ def run_nightly(db_path: Path = DB_PATH, dry_run: bool = False,
     candidates = compile_all_candidates(df_labeled, verbose=verbose)
 
     # ── Step 5: Evaluate and promote (with tier-aware limits) ────────────
+    #
+    # RULE PERSISTENCE: Load previously promoted rules. Validated rules from
+    # prior nights get a persistence bonus so they are not casually dropped.
+    # A previously promoted rule is only killed if it explicitly degrades:
+    #   - WF stability drops below 0.4
+    #   - Support drops below 50% of MIN_SUPPORT
+    #   - Net expectancy turns negative on the latest fold
+    #
+    prev_rules_path = ARTIFACTS_DIR / 'accepted_rules.json'
+    prev_rule_names = set()
+    if prev_rules_path.exists():
+        try:
+            with open(prev_rules_path) as f:
+                prev_rules = json.load(f)
+            prev_rule_names = {r.get('name', '') for r in prev_rules}
+            if prev_rule_names and verbose:
+                n_prev_long = sum(1 for r in prev_rules if r.get('direction') == 'LONG')
+                n_prev_short = sum(1 for r in prev_rules if r.get('direction') == 'SHORT')
+                n_prev_skip = sum(1 for r in prev_rules if r.get('direction') == 'SKIP')
+                print(f"\n  [PERSISTENCE] Loaded {len(prev_rule_names)} prior rules "
+                      f"(LONG: {n_prev_long}, SHORT: {n_prev_short}, SKIP: {n_prev_skip})")
+        except Exception:
+            pass
+
     print("\n[5/6] Evaluating candidates...")
     promoted = evaluate_and_promote(
         df_labeled, candidates,
@@ -167,6 +191,7 @@ def run_nightly(db_path: Path = DB_PATH, dry_run: bool = False,
         max_total=max_promoted,
         min_wf_folds=tier.get('min_wf_folds', 0),
         verbose=verbose,
+        prev_rule_names=prev_rule_names,
     )
 
     # ── Step 5b: Confluence pass (if enabled and mature enough) ──────

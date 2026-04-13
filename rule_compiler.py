@@ -733,8 +733,16 @@ def evaluate_and_promote(df: pd.DataFrame,
                          max_skip_rules: int = 12,
                          max_total: int = 24,
                          min_wf_folds: int = 0,
-                         verbose: bool = True) -> List[RuleScore]:
-    """Evaluate all candidates and promote the best survivors."""
+                         verbose: bool = True,
+                         prev_rule_names: set = None) -> List[RuleScore]:
+    """Evaluate all candidates and promote the best survivors.
+
+    Rule persistence: previously promoted rules (prev_rule_names) get a 15%
+    composite bonus so they are not casually displaced. They are only dropped
+    if they explicitly degrade (WF < 0.4, support < 50% min, or negative expectancy).
+    """
+    if prev_rule_names is None:
+        prev_rule_names = set()
     min_sup = _cfg.MIN_SUPPORT                            # ← runtime read
 
     if verbose:
@@ -798,11 +806,48 @@ def evaluate_and_promote(df: pd.DataFrame,
     # Phase 4: Deduplicate overlapping rules
     deduped = deduplicate_rules(robust, df)
 
-    # Phase 5: Tier-aware promotion with separate entry/skip caps
-    entry_rules = [s for s in deduped if s.rule.direction in ('LONG', 'SHORT')]
+    # Phase 4b: Rule persistence — previously promoted rules get a composite bonus
+    # so they are not casually displaced by marginally better new rules.
+    # A prior rule is only truly dropped if it degrades (handled by gates above).
+    if prev_rule_names:
+        PERSISTENCE_BONUS = 0.15  # 15% composite boost for prior rules
+        boosted = 0
+        for score in deduped:
+            if score.rule.name in prev_rule_names:
+                score.composite_score *= (1.0 + PERSISTENCE_BONUS)
+                boosted += 1
+        if verbose and boosted:
+            print(f"  [PERSISTENCE] Boosted {boosted} prior rules by {PERSISTENCE_BONUS:.0%}")
+
+    # Phase 5: Direction-balanced promotion
+    # BOTH SHORT and LONG rules must be maintained. The market decides which
+    # fires more often — the engine must NOT drop validated rules from either side.
+    #
+    # Strategy:
+    #   1. Reserve minimum slots per direction (at least 2 each)
+    #   2. Fill remaining slots by best composite score
+    #   3. This guarantees SHORT rules survive even if LONG composites are higher
+    long_rules = sorted([s for s in deduped if s.rule.direction == 'LONG'],
+                        key=lambda s: s.composite_score, reverse=True)
+    short_rules = sorted([s for s in deduped if s.rule.direction == 'SHORT'],
+                         key=lambda s: s.composite_score, reverse=True)
     skip_rules = [s for s in deduped if s.rule.direction == 'SKIP']
 
-    entry_rules = entry_rules[:max_entry_rules]
+    # Reserve minimum 2 slots per direction (or all available if fewer exist)
+    min_per_direction = min(2, max(1, max_entry_rules // 3))
+    guaranteed_long = long_rules[:min_per_direction]
+    guaranteed_short = short_rules[:min_per_direction]
+
+    # Fill remaining entry slots from all remaining rules by composite
+    remaining_slots = max_entry_rules - len(guaranteed_long) - len(guaranteed_short)
+    used_ids = set(id(r) for r in guaranteed_long + guaranteed_short)
+    remaining_candidates = sorted(
+        [s for s in long_rules + short_rules if id(s) not in used_ids],
+        key=lambda s: s.composite_score, reverse=True
+    )
+    fill_rules = remaining_candidates[:max(0, remaining_slots)]
+
+    entry_rules = guaranteed_long + guaranteed_short + fill_rules
     skip_rules = skip_rules[:max_skip_rules]
 
     final = entry_rules + skip_rules
@@ -810,9 +855,10 @@ def evaluate_and_promote(df: pd.DataFrame,
     final = final[:max_total]
 
     if verbose:
-        n_entry = len([s for s in final if s.rule.direction != 'SKIP'])
+        n_long = len([s for s in final if s.rule.direction == 'LONG'])
+        n_short = len([s for s in final if s.rule.direction == 'SHORT'])
         n_skip = len([s for s in final if s.rule.direction == 'SKIP'])
-        print(f"  After tier-aware trim: {len(final)} promoted "
-              f"(entry: {n_entry}, skip: {n_skip})")
+        print(f"  After direction-balanced trim: {len(final)} promoted "
+              f"(LONG: {n_long}, SHORT: {n_short}, SKIP: {n_skip})")
 
     return final
