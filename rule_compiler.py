@@ -833,21 +833,24 @@ def evaluate_and_promote(df: pd.DataFrame,
                          key=lambda s: s.composite_score, reverse=True)
     skip_rules = [s for s in deduped if s.rule.direction == 'SKIP']
 
-    # Reserve minimum 2 slots per direction (or all available if fewer exist)
-    min_per_direction = min(2, max(1, max_entry_rules // 3))
-    guaranteed_long = long_rules[:min_per_direction]
-    guaranteed_short = short_rules[:min_per_direction]
+    # Equal split: half the entry slots for each direction.
+    # Each side gets its best rules by composite. Neither side can starve the other.
+    # If one side has fewer candidates than its allocation, the surplus goes to the other.
+    half = max_entry_rules // 2  # 3 each for 6 slots
 
-    # Fill remaining entry slots from all remaining rules by composite
-    remaining_slots = max_entry_rules - len(guaranteed_long) - len(guaranteed_short)
-    used_ids = set(id(r) for r in guaranteed_long + guaranteed_short)
-    remaining_candidates = sorted(
-        [s for s in long_rules + short_rules if id(s) not in used_ids],
-        key=lambda s: s.composite_score, reverse=True
-    )
-    fill_rules = remaining_candidates[:max(0, remaining_slots)]
+    # Fill each side up to half, or all available if fewer exist
+    picked_long = long_rules[:half]
+    picked_short = short_rules[:half]
 
-    entry_rules = guaranteed_long + guaranteed_short + fill_rules
+    # If one side has fewer than half, give surplus to the other
+    if len(picked_long) < half:
+        surplus = half - len(picked_long)
+        picked_short = short_rules[:half + surplus]
+    elif len(picked_short) < half:
+        surplus = half - len(picked_short)
+        picked_long = long_rules[:half + surplus]
+
+    entry_rules = picked_long + picked_short
     skip_rules = skip_rules[:max_skip_rules]
 
     final = entry_rules + skip_rules
