@@ -1,3 +1,4 @@
 manual_prompts/*.txt
 !manual_prompts/.gitkeep
 __pycache__/
+.env

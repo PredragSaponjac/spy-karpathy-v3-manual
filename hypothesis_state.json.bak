@@ -37,12 +37,12 @@
     "acceleration": 1.0
   },
   "thresholds": {
-    "min_support": 20,
+    "min_support": 100,
     "max_overlap": 0.6,
     "neighbor_band_pct": 0.1,
     "min_composite_score": 0.0
   },
   "skip_aggressiveness": 1.0,
   "intermarket_weight": 1.4,
-  "move_size_preference": 1.8
+  "move_size_preference": 2.0
 }
