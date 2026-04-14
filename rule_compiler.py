@@ -819,38 +819,39 @@ def evaluate_and_promote(df: pd.DataFrame,
         if verbose and boosted:
             print(f"  [PERSISTENCE] Boosted {boosted} prior rules by {PERSISTENCE_BONUS:.0%}")
 
-    # Phase 5: Direction-balanced promotion
+    # Phase 5: Direction-balanced promotion with FLOOR logic
     # BOTH SHORT and LONG rules must be maintained. The market decides which
     # fires more often — the engine must NOT drop validated rules from either side.
     #
-    # Strategy:
-    #   1. Reserve minimum slots per direction (at least 2 each)
-    #   2. Fill remaining slots by best composite score
-    #   3. This guarantees SHORT rules survive even if LONG composites are higher
+    # CORRECT LOGIC:
+    # 1. FLOOR: always keep at least min_long_rules LONG and min_short_rules SHORT
+    # 2. FILL: use remaining slots for best overall rules (either direction)
+    # 3. REPLACE: within each direction, better rules replace weaker ones
+    # 4. NEVER reduce a direction below its floor just because the other side scored higher
     long_rules = sorted([s for s in deduped if s.rule.direction == 'LONG'],
                         key=lambda s: s.composite_score, reverse=True)
     short_rules = sorted([s for s in deduped if s.rule.direction == 'SHORT'],
                          key=lambda s: s.composite_score, reverse=True)
     skip_rules = [s for s in deduped if s.rule.direction == 'SKIP']
 
-    # Equal split: half the entry slots for each direction.
-    # Each side gets its best rules by composite. Neither side can starve the other.
-    # If one side has fewer candidates than its allocation, the surplus goes to the other.
-    half = max_entry_rules // 2  # 3 each for 6 slots
+    # Get floor from config (default 3 each if not set)
+    min_long = getattr(_cfg, 'MIN_LONG_RULES', 3)
+    min_short = getattr(_cfg, 'MIN_SHORT_RULES', 3)
 
-    # Fill each side up to half, or all available if fewer exist
-    picked_long = long_rules[:half]
-    picked_short = short_rules[:half]
+    # Step 1: Reserve FLOOR slots — take top N from each direction
+    guaranteed_long = long_rules[:min_long]
+    guaranteed_short = short_rules[:min_short]
 
-    # If one side has fewer than half, give surplus to the other
-    if len(picked_long) < half:
-        surplus = half - len(picked_long)
-        picked_short = short_rules[:half + surplus]
-    elif len(picked_short) < half:
-        surplus = half - len(picked_short)
-        picked_long = long_rules[:half + surplus]
+    # Step 2: FILL remaining slots from the rest (either direction) by composite
+    remaining_slots = max_entry_rules - len(guaranteed_long) - len(guaranteed_short)
+    used_ids = set(id(r) for r in guaranteed_long + guaranteed_short)
+    remaining_pool = sorted(
+        [s for s in long_rules + short_rules if id(s) not in used_ids],
+        key=lambda s: s.composite_score, reverse=True
+    )
+    fill_rules = remaining_pool[:max(0, remaining_slots)]
 
-    entry_rules = picked_long + picked_short
+    entry_rules = guaranteed_long + guaranteed_short + fill_rules
     skip_rules = skip_rules[:max_skip_rules]
 
     final = entry_rules + skip_rules
