@@ -183,12 +183,6 @@ NEIGHBOR_BAND_PCT      = 0.10    # ±10% for threshold robustness check
 MAX_OVERLAP            = 0.60    # Jaccard overlap threshold for deduplication
 MIN_COMPOSITE_SCORE    = 0.0     # minimum composite score to pass promotion
 
-# ─── Direction Floor (LONG/SHORT balance) ───────────────────────────────
-# Ensures the book always maintains both sides. Rules are only replaced
-# within their own direction when a better candidate is found.
-MIN_LONG_RULES         = 3       # minimum LONG rules to keep in the book
-MIN_SHORT_RULES        = 3       # minimum SHORT rules to keep in the book
-
 # ─── Tiered Maturity System ─────────────────────────────────────────────
 # Hard gates based on how many distinct trading days are in the DB.
 # Prevents one-day regime capture from masquerading as alpha.
@@ -228,11 +222,9 @@ MATURITY_TIERS = {
     (10, 999): { # 10+ days → LIVE, full walk-forward promotion
         'mode': 'live',
         'max_promoted': 24,
-        'max_entry_rules': 8,  # expanded from 6 to accommodate 3+3 floor + room for growth
+        'max_entry_rules': 6,
         'max_skip_rules': 12,
         'min_wf_folds': 3,
-        'min_long_rules': 3,   # floor: never go below this many LONG rules
-        'min_short_rules': 3,  # floor: never go below this many SHORT rules
         'label': 'LIVE — walk-forward validated',
     },
 }

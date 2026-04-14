@@ -733,16 +733,8 @@ def evaluate_and_promote(df: pd.DataFrame,
                          max_skip_rules: int = 12,
                          max_total: int = 24,
                          min_wf_folds: int = 0,
-                         verbose: bool = True,
-                         prev_rule_names: set = None) -> List[RuleScore]:
-    """Evaluate all candidates and promote the best survivors.
-
-    Rule persistence: previously promoted rules (prev_rule_names) get a 15%
-    composite bonus so they are not casually displaced. They are only dropped
-    if they explicitly degrade (WF < 0.4, support < 50% min, or negative expectancy).
-    """
-    if prev_rule_names is None:
-        prev_rule_names = set()
+                         verbose: bool = True) -> List[RuleScore]:
+    """Evaluate all candidates and promote the best survivors."""
     min_sup = _cfg.MIN_SUPPORT                            # ← runtime read
 
     if verbose:
@@ -806,52 +798,11 @@ def evaluate_and_promote(df: pd.DataFrame,
     # Phase 4: Deduplicate overlapping rules
     deduped = deduplicate_rules(robust, df)
 
-    # Phase 4b: Rule persistence — previously promoted rules get a composite bonus
-    # so they are not casually displaced by marginally better new rules.
-    # A prior rule is only truly dropped if it degrades (handled by gates above).
-    if prev_rule_names:
-        PERSISTENCE_BONUS = 0.15  # 15% composite boost for prior rules
-        boosted = 0
-        for score in deduped:
-            if score.rule.name in prev_rule_names:
-                score.composite_score *= (1.0 + PERSISTENCE_BONUS)
-                boosted += 1
-        if verbose and boosted:
-            print(f"  [PERSISTENCE] Boosted {boosted} prior rules by {PERSISTENCE_BONUS:.0%}")
-
-    # Phase 5: Direction-balanced promotion with FLOOR logic
-    # BOTH SHORT and LONG rules must be maintained. The market decides which
-    # fires more often — the engine must NOT drop validated rules from either side.
-    #
-    # CORRECT LOGIC:
-    # 1. FLOOR: always keep at least min_long_rules LONG and min_short_rules SHORT
-    # 2. FILL: use remaining slots for best overall rules (either direction)
-    # 3. REPLACE: within each direction, better rules replace weaker ones
-    # 4. NEVER reduce a direction below its floor just because the other side scored higher
-    long_rules = sorted([s for s in deduped if s.rule.direction == 'LONG'],
-                        key=lambda s: s.composite_score, reverse=True)
-    short_rules = sorted([s for s in deduped if s.rule.direction == 'SHORT'],
-                         key=lambda s: s.composite_score, reverse=True)
+    # Phase 5: Tier-aware promotion with separate entry/skip caps
+    entry_rules = [s for s in deduped if s.rule.direction in ('LONG', 'SHORT')]
     skip_rules = [s for s in deduped if s.rule.direction == 'SKIP']
 
-    # Get floor from config (default 3 each if not set)
-    min_long = getattr(_cfg, 'MIN_LONG_RULES', 3)
-    min_short = getattr(_cfg, 'MIN_SHORT_RULES', 3)
-
-    # Step 1: Reserve FLOOR slots — take top N from each direction
-    guaranteed_long = long_rules[:min_long]
-    guaranteed_short = short_rules[:min_short]
-
-    # Step 2: FILL remaining slots from the rest (either direction) by composite
-    remaining_slots = max_entry_rules - len(guaranteed_long) - len(guaranteed_short)
-    used_ids = set(id(r) for r in guaranteed_long + guaranteed_short)
-    remaining_pool = sorted(
-        [s for s in long_rules + short_rules if id(s) not in used_ids],
-        key=lambda s: s.composite_score, reverse=True
-    )
-    fill_rules = remaining_pool[:max(0, remaining_slots)]
-
-    entry_rules = guaranteed_long + guaranteed_short + fill_rules
+    entry_rules = entry_rules[:max_entry_rules]
     skip_rules = skip_rules[:max_skip_rules]
 
     final = entry_rules + skip_rules
@@ -859,10 +810,9 @@ def evaluate_and_promote(df: pd.DataFrame,
     final = final[:max_total]
 
     if verbose:
-        n_long = len([s for s in final if s.rule.direction == 'LONG'])
-        n_short = len([s for s in final if s.rule.direction == 'SHORT'])
+        n_entry = len([s for s in final if s.rule.direction != 'SKIP'])
         n_skip = len([s for s in final if s.rule.direction == 'SKIP'])
-        print(f"  After direction-balanced trim: {len(final)} promoted "
-              f"(LONG: {n_long}, SHORT: {n_short}, SKIP: {n_skip})")
+        print(f"  After tier-aware trim: {len(final)} promoted "
+              f"(entry: {n_entry}, skip: {n_skip})")
 
     return final
